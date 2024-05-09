@@ -40,7 +40,7 @@ public class Controller extends HttpServlet {
 				request.setAttribute("list", list);
 				break;
 			case "/user-insert.do":
-				view = "user/insert";
+				view = "user/insert";	// 작업중
 				break;
 		case "/user-insert-process.do":
 				User user = new User();
