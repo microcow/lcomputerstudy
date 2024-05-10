@@ -24,6 +24,10 @@
 		color:#000;
 		font-weight:700;
 	}
+	 .link-button {
+        color: blue; /* 파란색 */
+        text-decoration: none; /* 밑줄 제거 */
+    }
 </style>
 
 <body>
@@ -36,7 +40,7 @@
 		</tr>
 		<c:forEach items="${list}" var="user">
 			<tr>
-				<td>${user.u_idx}</td>
+				<td><a href="user-detail.do">${user.u_idx}</a></td>
 				<td>${user.u_id}</td>
 				<td>${user.u_name}</td>
 			</tr>
