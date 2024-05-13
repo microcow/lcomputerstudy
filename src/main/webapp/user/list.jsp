@@ -38,7 +38,7 @@
 			<th>ID</th>
 			<th>이름</th>
 		</tr>
-		<c:forEach items="${list}" var="user">
+		<c:forEach items="${list}" var="user"> <!-- "list"라는 데이터 목록을 반복하며 각 요소를 "user"라는 변수에 할당-->
 			<tr>
 				<td><a href="user-detail.do?u_idx=${user.u_idx}">${user.u_idx}</a></td>
 				<td>${user.u_id}</td>

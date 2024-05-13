@@ -31,7 +31,7 @@ public class UserDAO {
 			String query = "Select *"
 					+ " From user";
 			pstmt = conn.prepareStatement(query); // SQL 쿼리를 데이터베이스에 보내기 위한 PreparedStatement 객체를 생성
-			rs = pstmt.executeQuery(); // SQL 쿼리 실행 및 결과 처리
+			rs = pstmt.executeQuery(); // SQL 쿼리 실행 결과가 저장된다
 			list = new ArrayList<User>();
 			
 			while(rs.next()) {
@@ -85,7 +85,7 @@ public class UserDAO {
 		Connection conn = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
-		User user3 = new User();
+		User user3 = null;
 		
 		try {
 			conn = DBConnection.getConnection();
@@ -95,12 +95,16 @@ public class UserDAO {
 			pstmt = conn.prepareStatement(query);
 			pstmt.setString(1, u_idx);
 			rs = pstmt.executeQuery();
-						
+			 
+			while(rs.next()) {
+			   	user3 = new User();
 				user3.setU_idx(rs.getInt("u_idx"));
 			   	user3.setU_id(rs.getString("u_id"));
        	       	user3.setU_name(rs.getString("u_name"));
        	       	user3.setU_tel(rs.getString("u_tel"));
        	       	user3.setU_age(rs.getString("u_age"));
+			}
+			// while(rs.next()){}문이 없으면 user3에 데이터가 제대로 저장되지 않음 왜?
 			
 		} catch (Exception e) {
 			
@@ -116,4 +120,32 @@ public class UserDAO {
 		return user3;
 	}
 
+	public User deleteUser(String u_idx){
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		User user4 = null;
+		
+		try {
+			conn = DBConnection.getConnection();
+			String query = "DELETE"
+					+ " From user"
+					+ " Where u_idx = ?";
+			pstmt = conn.prepareStatement(query);
+			pstmt.setString(1, u_idx);
+			rs = pstmt.executeQuery();
+			
+		} catch (Exception e) {
+			
+		} finally {
+			try {
+				rs.close();
+				pstmt.close();
+				conn.close();				
+			}catch(SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return user4;
+	}
 }
