@@ -22,16 +22,16 @@ public class UserDAO {
 	
 	public ArrayList<User> getUsers(){
 		Connection conn = null;
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
+		PreparedStatement pstmt = null; //PreparedStatement 인터페이스가 무엇인지
+		ResultSet rs = null; // ResultSet 인터페이스가 무엇인지
 		ArrayList<User> list = null;
 		
 		try {
 			conn = DBConnection.getConnection();
 			String query = "Select *"
 					+ " From user";
-			pstmt = conn.prepareStatement(query);
-			rs = pstmt.executeQuery();
+			pstmt = conn.prepareStatement(query); // SQL 쿼리를 데이터베이스에 보내기 위한 PreparedStatement 객체를 생성
+			rs = pstmt.executeQuery(); // SQL 쿼리 실행 및 결과 처리
 			list = new ArrayList<User>();
 			
 			while(rs.next()) {
@@ -80,6 +80,40 @@ public class UserDAO {
 				e.printStackTrace();
 			}
 		}
+	}
+	public User getUsers2(String u_idx){
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		User user3 = new User();
+		
+		try {
+			conn = DBConnection.getConnection();
+			String query = "Select *"
+					+ " From user"
+					+ " Where u_idx = ?";
+			pstmt = conn.prepareStatement(query);
+			pstmt.setString(1, u_idx);
+			rs = pstmt.executeQuery();
+						
+				user3.setU_idx(rs.getInt("u_idx"));
+			   	user3.setU_id(rs.getString("u_id"));
+       	       	user3.setU_name(rs.getString("u_name"));
+       	       	user3.setU_tel(rs.getString("u_tel"));
+       	       	user3.setU_age(rs.getString("u_age"));
+			
+		} catch (Exception e) {
+			
+		} finally {
+			try {
+				rs.close();
+				pstmt.close();
+				conn.close();				
+			}catch(SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return user3;
 	}
 
 }

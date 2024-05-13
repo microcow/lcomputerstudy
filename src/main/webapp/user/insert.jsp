@@ -19,6 +19,9 @@
 	</p>
 	<p> 나이 : <input type="text" name="age"></p>
 	<p> <input type="submit" value="가입하기"></p>
+	<!--  여기서 type="submit"은 "가입하기" 버튼을 생성합니다.
+	 이 버튼을 클릭하면 <form> 요소 안에 있는 데이터가 /user-insert-process.do 경로로 POST 방식으로 전송된다. (전송된 데이터는 request가 받음)
+	 -->
 </form>
 
 </body>

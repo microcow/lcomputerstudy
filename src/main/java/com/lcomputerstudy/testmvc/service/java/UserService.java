@@ -20,7 +20,12 @@ public class UserService {
 	public ArrayList<User> getUsers(){
 		return dao.getUsers();
 	}
+	public User getUsers2(String u_idx){
+		return dao.getUsers2(u_idx);
+	}
+	
 	public void insertUser(User user) {
 		dao.insertUser(user);
 	}
+
 }

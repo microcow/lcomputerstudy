@@ -8,35 +8,18 @@
 </head>
 <body>
 <h1>회원 목록</h1>
-	<table>
+		<table>
 		<tr>
 			<th>NO</th>
 			<th>ID</th>
 			<th>이름</th>
 		</tr>
-		<tr>
-				<td>회원 번호</td>
-				<td><%=u_idx %></td>		
-			</tr>
 			<tr>
-				<td>회원 ID</td>
-				<td><%=u_id %></td>		
-			</tr>
-			<tr>
-				<td>회원 이름</td>
-				<td><%=u_name %></td>		
-			</tr>
-			<tr>
-				<td>회원 전화번호</td>
-				<td><%=u_tel %></td>		
-			</tr>
-			<tr>
-				<td>회원 나이</td>
-				<td><%=u_age %></td>		
-			</tr>	
+				<td><a href="user-detail.do">${user2.u_idx}</a></td>
+				<td>${user2.u_id}</td>
+				<td>${user2.u_name}</td>
+			</tr>			
 	</table>
-	<form action="user-insert-process.do" name="user" method="post">
-	<p> <input type="submit" value="삭제하기"></p>
-    </form>
+
 </body>
 </html>

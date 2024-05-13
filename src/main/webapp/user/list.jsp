@@ -40,11 +40,10 @@
 		</tr>
 		<c:forEach items="${list}" var="user">
 			<tr>
-				<td><a href="user-detail.do">${user.u_idx}</a></td>
+				<td><a href="user-detail.do?u_idx=${user.u_idx}">${user.u_idx}</a></td>
 				<td>${user.u_id}</td>
 				<td>${user.u_name}</td>
-			</tr>
-			
+			</tr>			
 		</c:forEach>	
 	</table>
 </body>
