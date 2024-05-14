@@ -26,9 +26,18 @@ public class UserService {
 	public User deleteUser(String u_idx) {
 		return dao.deleteUser(u_idx);
 	}
+	public User changeUser(User u_idx) {
+		return dao.changeUser(u_idx);
+	}
 	
 	public void insertUser(User user) {
 		dao.insertUser(user);
+	}
+	public int getUsersCount() {
+		return dao.getUsersCount();
+	}
+	public ArrayList<User> getUsers3(int page) {
+		return dao.getUsers3(page);
 	}
 
 }

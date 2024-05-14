@@ -28,7 +28,8 @@
         color: blue; /* 파란색 */
         text-decoration: none; /* 밑줄 제거 */
     }
-</style> <!-- 기존 list 코드는 list2에 있음 -->
+</style>
+
 <body>
 <h1>회원 목록</h1>
 	<table>
@@ -48,15 +49,5 @@
 			</tr>			
 		</c:forEach>	
 	</table>
-	<div>
-		<ul>
-			<li><a href="user-list.do?page=1">1</a></li>
-			<!-- 매개변수로 "page=1"를 가진 "user-list.do"에 대한 요청이 생성 -->
-			<li><a href="user-list.do?page=2">2</a></li>
-			<li><a href="user-list.do?page=3">3</a></li>
-			<li><a href="user-list.do?page=4">4</a></li>
-			<li><a href="user-list.do?page=5">5</a></li>
-		</ul>
-	</div>
 </body>
 </html>

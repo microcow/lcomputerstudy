@@ -50,4 +50,8 @@ public class User {
 	public void setU_age(String u_age) {
 		this.u_age = u_age;
 	}
+
+	public int toIdx() {
+			return this.u_idx;
+	}
 }
