@@ -63,6 +63,7 @@ public class UserDAO {
 		try {
 			conn = DBConnection.getConnection();
 			String sql = "insert into user(u_id,u_pw,u_name,u_tel,u_age) values(?,?,?,?,?)";
+			// 쿼리에서 insert문 작성 시 이렇게 (update, delete문과는 다름)
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setString(1, user.getU_id());
 			pstmt.setString(2, user.getU_pw());
@@ -156,6 +157,7 @@ public class UserDAO {
 		try {
 			conn = DBConnection.getConnection();
 			String query = "UPDATE user SET u_id=?, u_pw=?, u_name=?, u_tel=?, u_age=? WHERE u_idx=?";
+			// "SET" 다음에 업데이트할 값들을 열 이름과 함께 나열하는 것이 올바른 구문입니다.
 			pstmt = conn.prepareStatement(query);
 			pstmt.setString(1, user5.getU_id());
 			pstmt.setString(2, user5.getU_pw());
@@ -215,16 +217,75 @@ public class UserDAO {
 		return count;
 	}
 	public ArrayList<User> getUsers3(int page) {
+		
 		Connection conn = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		ArrayList<User> list = null;
+		int pageNum = (page-1)*3;
+		
+		try {
+			conn = DBConnection.getConnection();
+			//String query = "select * from user limit ?,3";
+			String query = new StringBuilder()
+					// StringBuilder클래스의 .append메서드는 문자열을 서로 연결해주는 메서드이다
+					// .toString으로 문자열을 모두 연결하지 않으면 String에 담을 수 없다
+					.append("SELECT 		@ROWNUM := @ROWNUM - 1 AS ROWNUM,\n")
+					.append("				ta.*\n")
+					.append("FROM 			user as ta,\n")
+					.append("				(SELECT @ROWNUM := (SELECT	COUNT(*)-?+1 FROM user)) as tb\n")
+					/// as tb가 없으면 목록이 안나오는 이유? : 위 from절에서 두 테이블이 서로 join하고 있다. 가능하면 LEFT join을 사용하자
+					.append("LIMIT			?, 3\n")
+					.toString();
+				//@ 기호는 변수를 나타냅니다. (일회성 변수) //:= 연산자는 MySQL에서 변수에 값을 할당하는 데 사용됩니다.
+				//@ROWNUM := @ROWNUM - 1는 @ROWNUM 변수의 현재 값에서 1을 뺀 값을 다시 @ROWNUM 변수에 할당하는 것입니다.
+			// limit이 하나만 있으면 출력되는 개수를 설정하는 것이며 두개 있으면 첫번째 숫자는 출력되는 인덱스의 시작위치를 설정하고 두번째는 출력되는 개수를 설정한다
+	       	pstmt = conn.prepareStatement(query);
+	       	pstmt.setInt(1, pageNum);
+	       	pstmt.setInt(2, pageNum);
+	        rs = pstmt.executeQuery();
+	        list = new ArrayList<User>();
+
+	        while(rs.next()){     
+	        	User user = new User();
+	        	user.setRownum(rs.getInt("ROWNUM"));
+	        	System.out.println(rs.getInt("ROWNUM"));
+       	       	user.setU_idx(rs.getInt("u_idx"));
+       	       	user.setU_id(rs.getString("u_id"));
+       	       	user.setU_name(rs.getString("u_name"));
+       	       	user.setU_tel(rs.getString("u_tel"));
+       	       	user.setU_age(rs.getString("u_age"));
+       	       	
+       	       	list.add(user);
+	        }
+		} catch (Exception e) {
+			
+		} finally {
+			try {
+				if (rs != null) rs.close();
+				if (pstmt != null) pstmt.close();
+				if (conn != null) conn.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return list;
+	}
+	
+		/* Connection conn = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
 		ArrayList<User> list = null;
 		
 		try {
 			conn = DBConnection.getConnection();
-			String query = "select * from user limit ?,3";
+			String query = "select * from user ORDER BY u_idx asc limit ?,3";
 	       	pstmt = conn.prepareStatement(query);
-	       	pstmt.setInt(1, page);
+	       	pstmt.setInt(1, page); /// setInt 메서드를 사용하여 첫 번째 ?에 정수 값 3을 바인딩? 왜 limit의 값은 3으로 고정되어있는것이지
+	       	// 첫 번째 매개변수(인덱스가 1부터 시작함)를 설정합니다. 이것은 페이지 번호를 나타내며, 이 페이지에 표시할 사용자 데이터의 시작 인덱스를 결정합니다.
+	       	// limit이 3이니 page값이 0이라면 유저정보 0번인덱스부터 3개 select (데이터의 인덱스는 정렬 순서에 따라 0번부터 부여됨)
+	       	// page값이 3이면 유저정보 3번인덱스부터 3개 select
 	        rs = pstmt.executeQuery();
 	        list = new ArrayList<User>();
 		        
@@ -249,5 +310,5 @@ public class UserDAO {
 			}
 		}
 		return list;
-	}
+	}*/ 
 }

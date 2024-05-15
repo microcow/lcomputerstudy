@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import com.lcomputerstudy.testmvc.service.java.UserService;
+import com.lcomputerstudy.testmvc.vo.java.Pagination;
 import com.lcomputerstudy.testmvc.vo.java.User;
 
 @WebServlet("*.do") 
@@ -45,19 +46,19 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 			
 			UserService userService = UserService.getInstance();
 			String reqPage = request.getParameter("page");
-			System.out.println(reqPage);
-			if (reqPage != null) { 
+			if (reqPage != null)
 				page = Integer.parseInt(reqPage);
-				page = (page-1)*3;
-			}
+			
 			userService = UserService.getInstance();
 			ArrayList<User> list = userService.getUsers3(page);
-			usercount = userService.getUsersCount();
+			Pagination pagination = new Pagination(page);
+			
 			request.setAttribute("list", list);
-			request.setAttribute("usercount", usercount);
+			request.setAttribute("pagination", pagination);
 			
 			view = "user/list";
-		/* 3개씩 끊어서 list노출되게 하는 코드때문에 이전에 노출되던 list들 주석처리 하였음
+			
+		/* 3개씩 끊어서 list노출되게 하는 코드때문에 이전에 노출되던 코드 주석처리
 		   UserService userService = UserService.getInstance();
 			ArrayList<User> list = userService.getUsers();
 			usercount = userService.getUsersCount();

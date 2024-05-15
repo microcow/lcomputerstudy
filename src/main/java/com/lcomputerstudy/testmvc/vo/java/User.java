@@ -3,6 +3,7 @@ package com.lcomputerstudy.testmvc.vo.java;
 public class User {
 	
 	private int u_idx;
+	private int rownum;
 	private String u_id;
 	private String u_pw;
 	private String u_name;
@@ -54,4 +55,13 @@ public class User {
 	public int toIdx() {
 			return this.u_idx;
 	}
+
+	public int getRownum() {
+		return rownum;
+	}
+
+	public void setRownum(int rownum) {
+		this.rownum = rownum;
+	}
+
 }
