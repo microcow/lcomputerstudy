@@ -4,6 +4,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
 import com.lcomputerstudy.testmvc.database.java.DBConnection;
 import com.lcomputerstudy.testmvc.vo.java.User;
 
@@ -311,4 +316,37 @@ public class UserDAO {
 		}
 		return list;
 	}*/ 
+	
+	public User loginUser(String id, String pw) {
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		User user = null;
+		try {
+			conn = DBConnection.getConnection();
+			String sql = "SELECT * FROM user WHERE u_id = ? AND u_pw = ?";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, id);
+			pstmt.setString(2, pw);
+			rs = pstmt.executeQuery();
+			
+			if(rs.next()){     
+				user = new User();
+				user.setU_idx(rs.getInt("u_idx"));
+	        	user.setU_pw(rs.getString("u_pw"));
+	        	user.setU_id(rs.getString("u_id"));
+	        	user.setU_name(rs.getString("u_name"));
+		   }
+		} catch( Exception ex) {
+			System.out.println("SQLException : "+ex.getMessage());
+		} finally {
+			try {
+				if (pstmt != null) pstmt.close();
+				if (conn != null) conn.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return user;
+	} //end of loginUser
 }

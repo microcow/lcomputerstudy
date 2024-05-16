@@ -9,6 +9,8 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
 import com.lcomputerstudy.testmvc.service.java.UserService;
 import com.lcomputerstudy.testmvc.vo.java.Pagination;
 import com.lcomputerstudy.testmvc.vo.java.User;
@@ -37,12 +39,20 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 		request.setCharacterEncoding("utf-8");
 
 		String requestURI = request.getRequestURI();
+		// System.out.println(requestURI.toString()); 주소 확인
 		String contextPath = request.getContextPath();
+		// System.out.println(contextPath.toString()); 주소 확인
 		String command = requestURI.substring(contextPath.length());
+		// System.out.println(command.toString()); 주소 확인
 		String view = null;
+		String pw = null;
+		String id = null;
+		User user = new User(); 
 		
-		switch (command) {
-		case "/user-list.do":
+		command = checkSession(request, response, command);
+		
+		switch (command) { // 권한처리로 인해 login.do/logout.do/list.do 외 case는 로그인필요 jsp로 이동됨
+		case "/user-list.do": 
 			
 			UserService userService = UserService.getInstance();
 			String reqPage = request.getParameter("page");
@@ -70,11 +80,11 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 			/* 첫번째 아규먼트는 넘기는 이름 즉, key값이다.
 			(jsp인 user-list.do에서 받을 때 list라는 이름을 그대로 사용해야한다)*/
 			break;
-		case "/user-insert.do":
+		case "/user-insert.do": 
 			view = "user/insert";
 			break;
 		case "/user-insert-process.do":
-			User user = new User(); 
+			
 			user.setU_id(request.getParameter("id"));
 			user.setU_pw(request.getParameter("password"));
 			user.setU_name(request.getParameter("name"));
@@ -134,6 +144,66 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 			userService.changeUser(user11);
 			view = "user/finish";
 			break;
+			
+			
+		case "/user-login.do":
+			view = "user/login";
+			break;
+			
+		case "/user-login-process.do":
+			id = request.getParameter("login_id");
+			pw = request.getParameter("login_password");
+			
+			userService = UserService.getInstance();
+			user = userService.loginUser(id,pw);
+			//System.out.println(user.getU_idx()); 값이 없는데 출력 시도 시 NullPointerException 발생
+						
+			if(user != null) {
+				HttpSession session = request.getSession();
+				// HttpSession: 이 클래스는 서버와 클라이언트 간의 세션을 나타냅니다. 세션은 클라이언트(예: 웹 브라우저)와 서버 간의 상태 정보를 저장하는 메커니즘입니다. 세션을 통해 사용자가 웹사이트를 탐색하는 동안 정보를 유지할 수 있습니다.
+				/* request.getSession(): 이 메서드는 HttpServletRequest 객체(request)에서 호출됩니다. 이 메서드는 다음 중 하나를 수행합니다:
+				클라이언트가 이미 세션을 가지고 있으면, 그 세션을 반환합니다.
+				클라이언트가 세션을 가지고 있지 않으면, 새로운 세션을 생성하고 반환합니다.(request에는 유저가 입력한 정보가 들어있음) */
+				
+//				session.setAttribute("u_idx", user.getU_idx());
+//				session.setAttribute("u_id", user.getU_id());
+//				session.setAttribute("u_pw", user.getU_pw());
+//				session.setAttribute("u_name", user.getU_name());
+				session.setAttribute("user", user);
+				/* setAttribute 
+				첫 번째 인자: 문자열 "user"는 세션에 저장될 데이터의 키(key)입니다. 나중에 이 데이터를 불러올 때 이 키를 사용합니다.
+				두 번째 인자: user은 세션에 저장될 실제 데이터입니다. 여기서는 사용자의 이름(또는 ID)입니다. 
+				이 코드는 사용자가 로그인했을 때 user을 세션에 저장하여, 이후 요청에서도 사용자의 상태를 유지할 수 있게 합니다. 
+				예를 들어, 사용자가 로그인한 후 다른 페이지로 이동할 때도 세션을 통해 로그인 상태를 확인할 수 있습니다.*/
+				// request.getSession()로 세션을 생성하고 setAttribute로 생성한 세션을 저장
+
+				view = "user/login-result";
+			} else {
+				view = "user/login-fail";
+			}
+			break;
+			
+			case "/logout.do":
+				HttpSession session = request.getSession();
+				session.invalidate();
+				//session.invalidate() 메서드는 현재 세션을 무효화하여 세션의 모든 데이터를 삭제 (login-process.do에서 생성된 세션도 함께 삭제됨)
+				view = "user/login";
+				break;
+			case "/access-denied.do":				
+				view = "user/access-denied";		
+				break;
+				
+			 // 게시판 작성 
+			case "/create.do":
+				HttpSession session2 = request.getSession();
+				session2.setAttribute("user2", user); // 왜 create.jsp에서 user2.getu_name을 받지 못하지
+				view = "user/create";		
+				break;
+				
+			case "/create-process.do":
+				
+				
+
 		}
 		
 		RequestDispatcher rd = request.getRequestDispatcher(view+".jsp");
@@ -146,5 +216,33 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 		
 		
 	}
+	
+	public String checkSession(HttpServletRequest request, HttpServletResponse response, String command) {
+		HttpSession session = request.getSession();
+		
+		String[] authList = {
+				"/user-list.do"
+				,"/user-insert.do"
+				,"/user-insert-process.do"
+				,"/user-detail.do"
+				,"/user-delete.do"
+				,"/user-change.do"
+				,"/user-change2.do"
+				,"/logout.do"
+			};
+		
+		for (String item : authList) {
+			if (item.equals(command)) {
+				if (session.getAttribute("user") == null) {
+					// user라는 세션이 있다면 fail, 없으면 true (== null이기때문에)
+					// 세션 이름이 user인 이유는 login-prcess.do에서 session.setAttribute("user", user);로 설정했기 때문 (로그인을 할 때 세션을 생성(setAttribute)함)
+					// 즉, 로그인을 한 상태라면 user라는 세션이 생성되어 있는 상태일 것이고 로그인한 상태가 아니라면 user라는 세션이 생성되어 있지 않을 것이다
+					command = "/access-denied.do";
+				}
+			}
+		}
+		return command;
+	}
+
   
 }
