@@ -11,7 +11,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.lcomputerstudy.testmvc.service.java.BoardService;
 import com.lcomputerstudy.testmvc.service.java.UserService;
+import com.lcomputerstudy.testmvc.vo.java.Board;
 import com.lcomputerstudy.testmvc.vo.java.Pagination;
 import com.lcomputerstudy.testmvc.vo.java.User;
 
@@ -26,6 +28,7 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 	
 	int usercount = 0;
 	int page;
+	int page2;
 	
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -47,7 +50,6 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 		String view = null;
 		String pw = null;
 		String id = null;
-		User user = new User(); 
 		
 		command = checkSession(request, response, command);
 		
@@ -58,6 +60,7 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 			String reqPage = request.getParameter("page");
 			if (reqPage != null)
 				page = Integer.parseInt(reqPage);
+			else page = 1;
 			
 			userService = UserService.getInstance();
 			ArrayList<User> list = userService.getUsers3(page);
@@ -84,7 +87,7 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 			view = "user/insert";
 			break;
 		case "/user-insert-process.do":
-			
+			User user = new User();
 			user.setU_id(request.getParameter("id"));
 			user.setU_pw(request.getParameter("password"));
 			user.setU_name(request.getParameter("name"));
@@ -92,6 +95,7 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 			user.setU_age(request.getParameter("age"));	
 			// request.getParameter() 메소드는 파라미터 이름을 기준으로 요청에서 값을 추출한다.
 			// request.getParameter() 메소드는 HTML 폼에서 각 입력 요소의 name 속성 값과 일치하는 파라미터를 가져와서 그 값을 반환한다.
+			// user/insert.jsp에서 넘겨준 이름(name) 그대로 파라미터에 입력해야 가져옴
 			
 			userService = UserService.getInstance();
 			userService.insertUser(user);
@@ -195,13 +199,45 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 				
 			 // 게시판 작성 
 			case "/create.do":
-				HttpSession session2 = request.getSession();
-				session2.setAttribute("user2", user); // 왜 create.jsp에서 user2.getu_name을 받지 못하지
-				view = "user/create";		
+				/*
+				★ create.do는 user-login-process.do를 거친다음 오는데 process.do에서 user 세션이 생성되고 삭제되지 않았기에
+				해당 case에서 추가적으로 세션을 생성하거나 setAttribute하지 않아도 user.create.jsp에서 계속 ${sessionScope.user.u_name }와 같이 사용할 수 있음
+				*/
+				view = "user/create";
 				break;
 				
 			case "/create-process.do":
+				Board board = new Board();
+				board.setTitle(request.getParameter("title"));
+				board.setContent(request.getParameter("content"));
+				board.setWriter(request.getParameter("writer"));
+				board.setIdx(Integer.parseInt(request.getParameter("idx")));
 				
+				BoardService boardService = BoardService.getInstance();
+				boardService.insertBoard(board);
+				
+				view = "user/login-result";
+				break;
+				
+			case "/create.list.do":
+				/// reqPage2의 정보가 어디서오는지
+				/// getPostList 메서드 다듬기 (제대로 동작하지않고있음)
+			
+				String reqPage2 = request.getParameter("page2");
+				if (reqPage2 != null)
+					page2 = Integer.parseInt(reqPage2);
+				else page2 = 1;
+				
+				boardService = BoardService.getInstance();
+				ArrayList<Board> postList = boardService.getPostList(page2);
+				pagination = new Pagination(page2);
+				
+				
+				request.setAttribute("postList", postList);
+				request.setAttribute("pagination", pagination);
+				
+				view = "user/postlist";
+				break;
 				
 
 		}

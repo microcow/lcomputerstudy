@@ -171,7 +171,7 @@ public class UserDAO {
 			pstmt.setString(5, user5.getU_age());
 			pstmt.setInt(6, user5.getU_idx());
 			pstmt.executeUpdate();
-			//rs = pstmt.executeQuery();  ResultSet을 반환하는 것이 아니기 때문에 executeQuery()를 호출할 필요가 없습니다.
+			//rs = pstmt.executeQuery();  결과를 반환받을 필요없기 때문에 executeQuery()를 호출할 필요가 없습니다.
 			/*
 쿼리(Query): 데이터베이스로부터 데이터를 가져오는 데 사용됩니다. 이것은 SELECT 문의 경우입니다. 결과 집합이 반환됩니다.
 갱신(Update): 데이터베이스의 데이터를 수정, 삭제 또는 추가하는 데 사용됩니다. 이것은 INSERT, UPDATE, DELETE 문의 경우입니다. 결과 집합이 반환되지 않습니다.
@@ -254,7 +254,6 @@ public class UserDAO {
 	        while(rs.next()){     
 	        	User user = new User();
 	        	user.setRownum(rs.getInt("ROWNUM"));
-	        	System.out.println(rs.getInt("ROWNUM"));
        	       	user.setU_idx(rs.getInt("u_idx"));
        	       	user.setU_id(rs.getString("u_id"));
        	       	user.setU_name(rs.getString("u_name"));

@@ -6,10 +6,24 @@ public class Board {
 	private String date;
 	private String writer;
 	private int idx;
+	private int b_idx;
 	private int view;
+	private int rownum;
 	
+	public int getRownum() {
+		return rownum;
+	}
+	public void setRownum(int rownum) {
+		this.rownum = rownum;
+	}
 	public String getContent() {
 		return content;
+	}
+	public int getB_idx() {
+		return b_idx;
+	}
+	public void setB_idx(int b_idx) {
+		this.b_idx = b_idx;
 	}
 	public void setContent(String content) {
 		this.content = content;
