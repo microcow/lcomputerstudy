@@ -1,8 +1,10 @@
 package com.lcomputerstudy.testmvc.vo.java;
+import com.lcomputerstudy.testmvc.service.java.BoardService;
 import com.lcomputerstudy.testmvc.service.java.UserService;
 
 public class Pagination {
 	int userCount;       // user테이블에 등록 된 총 user 수
+	int postCount;		// board테이블에 등록된 총 board 
 	int page;           // 현재 패이지번호
 	int pageNum;          // userCount / page = 화면에 나타 낼 user index번호
 	int startPage;     //﻿ pagination의 시작(ex,1,6,11)
@@ -13,6 +15,7 @@ public class Pagination {
 	public static final int pageUnit=5;  // 한번에 불러 올 pagination 수
 	public static final int perPage=3;   // 한번에 불러 올 userCount 수
 	UserService userService = null;
+	BoardService boardService = null;
 	
 	public Pagination() {
 		
@@ -20,7 +23,9 @@ public class Pagination {
 	public Pagination(int page) {		
 		this.page = page;
 		userService = UserService.getInstance();
+		boardService = BoardService.getInstance();
 		userCount = userService.getUsersCount();
+		postCount = boardService.getPostCount();
 		startPage =((page-1)/pageUnit)*pageUnit+1;
 		lastPage = (int)Math.ceil(userCount / (float)perPage);
 		// Math.ceil : 올림
@@ -30,7 +35,12 @@ public class Pagination {
 		nextPage=(startPage+pageUnit);
 		
 	}
-	
+	public int getPostCount() {
+		return postCount;
+	}
+	public void setPostCount(int postCount) {
+		this.postCount = postCount;
+	}
 	public int getUserCount() {
 		return userCount;
 	}

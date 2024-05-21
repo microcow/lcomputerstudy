@@ -7,7 +7,7 @@
 <title>글 작성하기</title>
 </head>
 <body>
-<form action="create-process.do" name="user" method="post">
+<form action="create.process.do" name="user" method="post">
 	<p> 작성자 : ${sessionScope.user.u_name }님</p>
 	<p> 제목 : <input type="text" name="title"></p>
 	<p> 내용 : <input type="text" name="content"></p>

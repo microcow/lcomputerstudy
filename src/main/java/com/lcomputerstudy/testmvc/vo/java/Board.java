@@ -7,8 +7,16 @@ public class Board {
 	private String writer;
 	private int idx;
 	private int b_idx;
+	private int u_idx;
 	private int view;
 	private int rownum;
+	
+	public int getU_idx() {
+		return u_idx;
+	}
+	public void setU_idx(int u_idx) {
+		this.u_idx = u_idx;
+	}
 	
 	public int getRownum() {
 		return rownum;
@@ -57,6 +65,9 @@ public class Board {
 	}
 	public void setView(int view) {
 		this.view = view;
+	}
+	public void upView() {
+		this.view += 1;
 	}
 }
 

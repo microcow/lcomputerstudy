@@ -48,24 +48,21 @@
 <h1>글 목록</h1>
 	<table >
 		<tr>
-			<td colspan="5">글 개수 ${pagination.userCount}</td>
+			<td colspan="5">글 개수 ${pagination.postCount}</td>
 		<tr>		
 			<th>No</th>
 			<th>작성자</th>
 			<th>제목</th>
-			<th>날짜</th>
+			<th>작성날짜</th>
 			<th>조회수</th>
 		</tr>
 		<c:forEach items="${postList}" var="item2" varStatus="status"> <!-- varStatus는 딱히 신경x -->
 			 <tr>
-				<td><a href="create.list.do?u_idx=${item2.b_idx}">${item2.rownum}</a></td>
 				<td>${item2.rownum}</td>
 				<td>${item2.writer}</td>
-				<td>${item2.title}</td>
-				<td>${item2.title}</td> <!-- 날짜 나오도록 수정할것 -->
-				<td>${item2.title}</td> <!-- 조회수 나오도록 수정할것 -->
-				<!-- 위 $코드는 item객체의 getU_id와 getU_name 메서드를 호출한 후 결과값인 u_id와 u_name을 가져온다
-				즉, 각 메서드(getU_id, getU_name)가 구현되어있지 않으면 오류가 발생하며, 중간 메서드 대문자처리를 하지 않아도 오류가 발생한다 -->
+				<td><a href="post-detail.do?b_idx=${item2.b_idx}">${item2.title}</a></td>
+				<td>${item2.date}</td>
+				<td>${item2.view}</td>
 		     <tr>
 		</c:forEach>
 	</table>

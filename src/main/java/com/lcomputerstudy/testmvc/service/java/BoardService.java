@@ -27,4 +27,13 @@ public class BoardService {
 	public ArrayList<Board> getPostList(int page) {
 		return dao.getPostList(page);
 	}
+	public int getPostCount() {
+		return dao.getPostCount();
+	}
+	public Board getPost(String b_idx) {
+		return dao.getPost(b_idx);
+	}
+	public void updateView(String b_idx) {
+		dao.updateView(b_idx);
+	}
 }

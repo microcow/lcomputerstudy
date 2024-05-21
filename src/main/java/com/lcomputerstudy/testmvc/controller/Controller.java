@@ -93,6 +93,7 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 			user.setU_name(request.getParameter("name"));
 			user.setU_tel(request.getParameter("tel1") + "-" + request.getParameter("tel2") + "-" + request.getParameter("tel3"));
 			user.setU_age(request.getParameter("age"));	
+			// jsp에서 넘어온 값은 request에 저장된다.
 			// request.getParameter() 메소드는 파라미터 이름을 기준으로 요청에서 값을 추출한다.
 			// request.getParameter() 메소드는 HTML 폼에서 각 입력 요소의 name 속성 값과 일치하는 파라미터를 가져와서 그 값을 반환한다.
 			// user/insert.jsp에서 넘겨준 이름(name) 그대로 파라미터에 입력해야 가져옴
@@ -106,11 +107,11 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 			userService = UserService.getInstance();
 			User user2 = userService.getUsers2(request.getParameter("u_idx"));
 			request.setAttribute("user2", user2);
+			// setAttribute를 해야 ${user2}처럼 jsp에서 사용 가능
 			view = "user/detail";
 			break;
 			
 		case "/user-delete.do":
-			System.out.println(request.getParameter("u_idx")); // 값을 전달받고 있지 못함(해결)
 			userService = UserService.getInstance();
 			userService.deleteUser(request.getParameter("u_idx"));
 			view = "user/delete";
@@ -178,8 +179,9 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 				첫 번째 인자: 문자열 "user"는 세션에 저장될 데이터의 키(key)입니다. 나중에 이 데이터를 불러올 때 이 키를 사용합니다.
 				두 번째 인자: user은 세션에 저장될 실제 데이터입니다. 여기서는 사용자의 이름(또는 ID)입니다. 
 				이 코드는 사용자가 로그인했을 때 user을 세션에 저장하여, 이후 요청에서도 사용자의 상태를 유지할 수 있게 합니다. 
-				예를 들어, 사용자가 로그인한 후 다른 페이지로 이동할 때도 세션을 통해 로그인 상태를 확인할 수 있습니다.*/
-				// request.getSession()로 세션을 생성하고 setAttribute로 생성한 세션을 저장
+				예를 들어, 사용자가 로그인한 후 다른 페이지로 이동할 때도 세션을 통해 로그인 상태를 확인할 수 있습니다.
+				request.setAttribute와 동일하게 동작함 즉, jsp로 넘어가더라도 user라는 이름으로 사용 가능 */
+				// request.getSession()로 세션을 생성하고 setAttribute로 생성한 세션을 저장 
 
 				view = "user/login-result";
 			} else {
@@ -206,7 +208,7 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 				view = "user/create";
 				break;
 				
-			case "/create-process.do":
+			case "/create.process.do":
 				Board board = new Board();
 				board.setTitle(request.getParameter("title"));
 				board.setContent(request.getParameter("content"));
@@ -221,7 +223,6 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 				
 			case "/create.list.do":
 				/// reqPage2의 정보가 어디서오는지
-				/// getPostList 메서드 다듬기 (제대로 동작하지않고있음)
 			
 				String reqPage2 = request.getParameter("page2");
 				if (reqPage2 != null)
@@ -238,7 +239,24 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 				
 				view = "user/postlist";
 				break;
+			
+			case "/post-detail.do":
+				boardService = BoardService.getInstance();
+				boardService.updateView(request.getParameter("b_idx"));
+				Board board2 = new Board();
+				board2 = boardService.getPost(request.getParameter("b_idx"));
+				request.setAttribute("board2", board2); 
+				// getPost메소드를 통해 셋팅된 값만 전달됨 (즉, 셋팅된 값만 post-detail jsp에서 사용 가능)
 				
+				view = "user/post-detail";
+				break;
+				
+			case "/post-delete.do": // 세션 u_idx와 글 작성자의 u_idx가 일치하는지 확인
+				session = request.getSession();
+				int userU_idx = (int)session.getAttribute("u_idx"); // 세션 u_idx
+				int boardU_idx = Integer.parseInt(request.getParameter("u_idx")); // 글 작성자 u_idx
+				
+				/// 세션 u_idx를 어떻게 불러올 것인가
 
 		}
 		
@@ -265,6 +283,7 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 				,"/user-change.do"
 				,"/user-change2.do"
 				,"/logout.do"
+				,"/create.list.do"
 			};
 		
 		for (String item : authList) {
