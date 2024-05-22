@@ -69,13 +69,13 @@ public class BoardDAO {
 			System.out.println(board.getContent());
 			System.out.println(board.getWriter());
 			System.out.println(board.getIdx());
-			pstmt.executeUpdate(); 
-			// rs = pstmt.executeQuery(); 결과를 받환받을 필요 없기에 executeQuery는 필요 x
-			pstmt.close();
+			pstmt.executeUpdate();
+			
+			/*pstmt.close(); // 쿼리를 한번 사용한 후 재사용하려면 executeUpdate를(쿼리실행) 한 후 close하고 다시 prepareStatement 해야한다.
 			sql = "update asdfasdfsaf";
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setInt(1, 5);
-			pstmt.executeUpdate();
+			pstmt.executeUpdate();*/
 			
 		} catch( Exception ex) {
 			System.out.println("SQLException : "+ex.getMessage());

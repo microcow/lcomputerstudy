@@ -210,15 +210,19 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 				
 			case "/create.process.do":
 				Board board = new Board();
+				BoardService boardService = BoardService.getInstance();
+				if (request.getParameter("title") != null) { // 아무것도 입력안했을때 null이 아닌 공백으로 작성됨 수정필요
 				board.setTitle(request.getParameter("title"));
 				board.setContent(request.getParameter("content"));
 				board.setWriter(request.getParameter("writer"));
 				board.setIdx(Integer.parseInt(request.getParameter("idx")));
 				
-				BoardService boardService = BoardService.getInstance();
+				
 				boardService.insertBoard(board);
 				
 				view = "user/login-result";
+				}
+				else view = "user/access-denied";
 				break;
 				
 			case "/create.list.do":
@@ -233,9 +237,9 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 				ArrayList<Board> postList = boardService.getPostList(page2);
 				pagination = new Pagination(page2);
 				
-				
 				request.setAttribute("postList", postList);
 				request.setAttribute("pagination", pagination);
+				// pagination이 board테이블이 아닌 user테이블의 수에 따라 다음페이지가 생성되므로 수정해야함 
 				
 				view = "user/postlist";
 				break;
@@ -294,6 +298,7 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 				
 			case "/post-change-complete.do": // 수정 게시물 적용
 				Board changeBoard = new Board();
+				if (request.getParameter("title") != null) {
 				changeBoard.setTitle(request.getParameter("title"));
 				changeBoard.setContent(request.getParameter("content"));
 				changeBoard.setWriter(request.getParameter("writer"));
@@ -301,6 +306,8 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 				boardService = BoardService.getInstance();
 				boardService.changePost(changeBoard);
 				view = "user/post-change-complete";
+				}
+				else view = "user/access-denied";
 				break;
 
 		}
@@ -321,8 +328,6 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 		
 		String[] authList = {
 				"/user-list.do"
-				,"/user-insert.do"
-				,"/user-insert-process.do"
 				,"/user-detail.do"
 				,"/user-delete.do"
 				,"/user-change.do"
