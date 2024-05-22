@@ -36,4 +36,10 @@ public class BoardService {
 	public void updateView(String b_idx) {
 		dao.updateView(b_idx);
 	}
+	public void deletePost(String b_idx) {
+		dao.deletePost(b_idx);
+	}
+	public void changePost(Board changeBoard) {
+		dao.changePost(changeBoard);
+	}
 }

@@ -8,6 +8,7 @@ import java.util.ArrayList;
 
 import com.lcomputerstudy.testmvc.database.java.DBConnection;
 import com.lcomputerstudy.testmvc.vo.java.Board;
+import com.lcomputerstudy.testmvc.vo.java.Pagination;
 import com.lcomputerstudy.testmvc.vo.java.User;
 
 public class BoardDAO {
@@ -70,6 +71,11 @@ public class BoardDAO {
 			System.out.println(board.getIdx());
 			pstmt.executeUpdate(); 
 			// rs = pstmt.executeQuery(); 결과를 받환받을 필요 없기에 executeQuery는 필요 x
+			pstmt.close();
+			sql = "update asdfasdfsaf";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, 5);
+			pstmt.executeUpdate();
 			
 		} catch( Exception ex) {
 			System.out.println("SQLException : "+ex.getMessage());
@@ -89,7 +95,7 @@ public ArrayList<Board> getPostList(int page) { // 글 목록 불러오는 메�
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
 		ArrayList<Board> list = null;
-		int pageNum = (page-1)*3;
+		int pageNum = (page-1)*Pagination.perPage;
 		
 		try {
 			conn = DBConnection.getConnection();
@@ -99,10 +105,11 @@ public ArrayList<Board> getPostList(int page) { // 글 목록 불러오는 메�
 					.append("				ta.*\n")
 					.append("FROM 			board as ta,\n")
 					.append("				(SELECT @ROWNUM := 0) as tb\n")
-					.append("LIMIT			?, 3\n")
+					.append("LIMIT			?, ?\n") // post-list 2페이지로 안넘어져가서 임시로 limit 10으로 설정
 					.toString();
 	       	pstmt = conn.prepareStatement(query);
 	       	pstmt.setInt(1, pageNum);
+	       	pstmt.setInt(2, Pagination.perPage);
 	        rs = pstmt.executeQuery();
 	        list = new ArrayList<Board>();
 
@@ -117,7 +124,7 @@ public ArrayList<Board> getPostList(int page) { // 글 목록 불러오는 메�
        	       	list.add(board);
 	        }
 		} catch (Exception e) {
-			
+			e.printStackTrace();
 		} finally {
 			try {
 				if (rs != null) rs.close();
@@ -152,7 +159,7 @@ public Board getPost(String b_idx) { // 상세 글 가져오기 메서드
 			board.setWriter(rs.getString("b_writer"));
 			board.setContent(rs.getString("b_content"));
 			board.setView(rs.getInt("b_view"));
-			board.setU_idx(getPostCount());
+			board.setU_idx(rs.getInt("u_idx"));
 		}
 		
 	} catch (Exception e) {
@@ -195,6 +202,58 @@ public void updateView(String b_idx) { // 글 클릭 시 조회수 증가 메서
 		}
 	}
 }
-
+public void deletePost(String b_idx){
+	Connection conn = null;
+	PreparedStatement pstmt = null;
+	ResultSet rs = null;
+	
+	try {
+		conn = DBConnection.getConnection();
+		String query = "DELETE"
+				+ " From board"
+				+ " Where b_idx = ?";
+		pstmt = conn.prepareStatement(query);
+		pstmt.setString(1, b_idx);
+		rs = pstmt.executeQuery();
+		
+	} catch (Exception e) {
+		
+	} finally {
+		try {
+			rs.close();
+			pstmt.close();
+			conn.close();				
+		}catch(SQLException e) {
+			e.printStackTrace();
+		}
+	}
+}
+public void changePost(Board changeBoard){
+	Connection conn = null;
+	PreparedStatement pstmt = null;
+	
+	try {
+		conn = DBConnection.getConnection();
+		String query = "UPDATE board SET b_title=?, b_content=?, b_date=NOW(), b_writer=? WHERE b_idx=?";
+		pstmt = conn.prepareStatement(query);
+		pstmt.setString(1, changeBoard.getTitle());
+		pstmt.setString(2, changeBoard.getContent());
+		pstmt.setString(3, changeBoard.getWriter());
+		pstmt.setInt(4, changeBoard.getB_idx());
+		pstmt.executeUpdate();
+		
+	} catch (Exception e) {
+		
+	} finally {
+		try {
+			//rs.close();
+			pstmt.close();
+			conn.close();				
+		}catch(SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+}
 
 }

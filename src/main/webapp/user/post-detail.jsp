@@ -43,18 +43,18 @@
 			</tr>
 	</table>
 	
-	<input type="hidden" name="b_idx" value="${board.b_idx}">
-	<input type="hidden" name="b_idx" value="${board.u_idx}">
+	<input type="hidden" name="b_idx" value="${board2.b_idx}">
+	<input type="hidden" name="u_idx" value="${board2.u_idx}">
 	<input type="submit" value="삭제하기">
 	</form>
 	
 	<form action="post-change.do" method="post">
-	<input type="hidden" name="b_idx" value="${board.b_idx}">
-	<input type="hidden" name="b_idx" value="${board.u_idx}">
+	<input type="hidden" name="b_idx" value="${board2.b_idx}">
+	<input type="hidden" name="u_idx" value="${board2.u_idx}">
 	<p> <input type="submit" value="수정하기"></p>
 </form>
 <form action="create.list.do" method="post">
-	<input type="hidden" name="b_idx" value="${board.b_idx}">
+	<input type="hidden" name="b_idx" value="${board2.b_idx}">
 	<p> <input type="submit" value="돌아가기"></p>
 </form>
 	

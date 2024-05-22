@@ -4,6 +4,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Enumeration;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -126,7 +127,7 @@ public class UserDAO {
 		return user3;
 	}
 
-	public User deleteUser(String u_idx){
+	public User deleteUser(String u_idx){ // void 타입으로 했어도 됐음
 		Connection conn = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
@@ -154,7 +155,7 @@ public class UserDAO {
 		}
 		return user4;
 	}
-	public User changeUser(User user5){
+	public User changeUser(User user5){ // 마찬가지로 void 타입으로 했어도 됐음
 		Connection conn = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
@@ -347,5 +348,17 @@ public class UserDAO {
 			}
 		}
 		return user;
-	} //end of loginUser
+	}
+	
+	public int sessionU_idx(HttpSession session) { // 로그인된 세션의 u_idx값 가져오기
+	    Object userObj = session.getAttribute("user");
+	    // getAttribute("user"): 이 메서드는 세션에서 이름이 "user"인 속성의 값을 가져옵니다. 세션에서 가져온 값은 일반적으로 Object 타입으로 반환됩니다.
+
+	    if (userObj instanceof User) { // instanceof는 object클래스를 검사하는 객체. 즉, userObj가 User클래스면 true를 return
+	        User user = (User) userObj;
+	        return user.getU_idx();
+	    }
+
+	    throw new IllegalStateException("No User instance found in session");
+	}
 }

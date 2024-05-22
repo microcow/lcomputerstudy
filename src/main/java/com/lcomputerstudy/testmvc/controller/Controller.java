@@ -224,7 +224,7 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 			case "/create.list.do":
 				/// reqPage2의 정보가 어디서오는지
 			
-				String reqPage2 = request.getParameter("page2");
+				String reqPage2 = request.getParameter("page");
 				if (reqPage2 != null)
 					page2 = Integer.parseInt(reqPage2);
 				else page2 = 1;
@@ -244,19 +244,64 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 				boardService = BoardService.getInstance();
 				boardService.updateView(request.getParameter("b_idx"));
 				Board board2 = new Board();
-				board2 = boardService.getPost(request.getParameter("b_idx"));
+				board2 = boardService.getPost(request.getParameter("b_idx")); // board2의 값 세팅
 				request.setAttribute("board2", board2); 
-				// getPost메소드를 통해 셋팅된 값만 전달됨 (즉, 셋팅된 값만 post-detail jsp에서 사용 가능)
+				// getPost메소드를 통해 board2에 세터로 셋팅된 값만 jsp에 전달됨 (즉, 셋팅된 값만 post-detail jsp에서 사용 가능)
 				
 				view = "user/post-detail";
 				break;
 				
 			case "/post-delete.do": // 세션 u_idx와 글 작성자의 u_idx가 일치하는지 확인
 				session = request.getSession();
-				int userU_idx = (int)session.getAttribute("u_idx"); // 세션 u_idx
-				int boardU_idx = Integer.parseInt(request.getParameter("u_idx")); // 글 작성자 u_idx
+				boardService = BoardService.getInstance();	
 				
-				/// 세션 u_idx를 어떻게 불러올 것인가
+				/* userService = UserService.getInstance();
+				   int sessionU_idx = userService.sessionU_idx(session); 
+				    로그인 되어있는 세션의 u_idx가져오는 방법 1 */
+							
+				Object userObj = session.getAttribute("user"); // getAttribute는 return타입이 Object // 세션은 login-process.do에서 "user"값이 셋팅되어있음	
+				User idxget = (User)userObj;
+				int userU_idx = idxget.getU_idx();
+				// 로그인 되어있는 세션의 u_idx가져오는 방법 2 
+				
+				int postU_idx = Integer.parseInt(request.getParameter("u_idx")); // 글 작성자 u_idx 가져오기
+								
+				if(userU_idx == postU_idx) {
+					boardService.deletePost(request.getParameter("b_idx"));
+					view = "user/post-delete";
+				}
+				else view = "user/access-denied";
+				break;
+											
+			case "/post-change.do": // 게시물 수정 권한 확인
+				session = request.getSession();
+				boardService = BoardService.getInstance();	
+				Board b_idx = new Board();
+				b_idx.setB_idx(Integer.parseInt(request.getParameter("b_idx")));
+										
+				userObj = session.getAttribute("user");
+				idxget = (User)userObj;
+				userU_idx = idxget.getU_idx(); 
+				
+				postU_idx = Integer.parseInt(request.getParameter("u_idx"));
+								
+				if(userU_idx == postU_idx) {
+					request.setAttribute("b_idx", b_idx);
+					view = "user/post-change";
+				}
+				else view = "user/access-denied";
+				break;
+				
+			case "/post-change-complete.do": // 수정 게시물 적용
+				Board changeBoard = new Board();
+				changeBoard.setTitle(request.getParameter("title"));
+				changeBoard.setContent(request.getParameter("content"));
+				changeBoard.setWriter(request.getParameter("writer"));
+				changeBoard.setB_idx(Integer.parseInt(request.getParameter("b_idx")));				
+				boardService = BoardService.getInstance();
+				boardService.changePost(changeBoard);
+				view = "user/post-change-complete";
+				break;
 
 		}
 		

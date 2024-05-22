@@ -1,5 +1,8 @@
 package com.lcomputerstudy.testmvc.service.java;
 import java.util.ArrayList;
+
+import javax.servlet.http.HttpSession;
+
 import com.lcomputerstudy.testmvc.dao.java.UserDAO;
 import com.lcomputerstudy.testmvc.vo.java.User;
 
@@ -42,5 +45,9 @@ public class UserService {
 	public User loginUser(String id, String pw) {
 		return dao.loginUser(id,pw);
 	}
+	public int sessionU_idx(HttpSession session) {
+		return dao.sessionU_idx(session);
+	}
+
 
 }
