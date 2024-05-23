@@ -12,8 +12,15 @@ public class Board {
 	private int view;
 	private int rownum;
 	private int p_post; // 부모 게시글
+	private int depth;
 	
 	
+	public int getDepth() {
+		return depth;
+	}
+	public void setDepth(int depth) {
+		this.depth = depth;
+	}
 	public String getP_posttitle() {
 		return p_posttitle;
 	}
