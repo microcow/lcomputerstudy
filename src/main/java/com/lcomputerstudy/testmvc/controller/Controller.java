@@ -216,7 +216,18 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 				board.setContent(request.getParameter("content"));
 				board.setWriter(request.getParameter("writer"));
 				board.setIdx(Integer.parseInt(request.getParameter("idx")));
+				if (request.getParameter("p_post") != null) { // 작성 글이 답글일 경우 p_post 값 세팅
+					board.setP_post(Integer.parseInt(request.getParameter("p_post")));
+				}
+				if (request.getParameter("p_posttitle") != null) { // 작성 글이 답글일 경우 p_posttitle 값 세팅
+					board.setP_posttitle(request.getParameter("p_posttitle"));
+				}
 				
+				// board.setDepth(Integer.parseInt(request.getParameter("depth"))); 
+				/* 0523 학원에서 여까지함. 답글일 경우 db에서 원글(답글단 글)의 뎁스 수치를 가져오도록 해야함
+				 	원글의 뎁스가져와서 답글의 뎁스는 원글의 뎁스 +1로 db에 저장되게 설정해야함(어떻게 가져올것인가)
+				 	(db에서 원글의 depth 값 가져오는 메서드 작성해야할듯)
+				 */
 				
 				boardService.insertBoard(board);
 				
@@ -225,9 +236,7 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 				else view = "user/access-denied";
 				break;
 				
-			case "/create.list.do":
-				/// reqPage2의 정보가 어디서오는지
-			
+			case "/create.list.do":	
 				String reqPage2 = request.getParameter("page");
 				if (reqPage2 != null)
 					page2 = Integer.parseInt(reqPage2);
@@ -263,7 +272,10 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 				   int sessionU_idx = userService.sessionU_idx(session); 
 				    로그인 되어있는 세션의 u_idx가져오는 방법 1 */
 							
-				Object userObj = session.getAttribute("user"); // getAttribute는 return타입이 Object // 세션은 login-process.do에서 "user"값이 셋팅되어있음	
+				Object userObj = session.getAttribute("user"); 
+				// getAttribute는 return타입이 Object 
+				// 세션은 login-process.do에서 "user"값이 셋팅되어있음
+				// 굳이 session.getAttribute("user");로 안불러오고 이미 user라는 객체가 login-process.do에서 생성되어있기에 바로 user객체를 써도됨 (예시. user.getU_idx();) (단, user객체가 case내에서 생성되어있으면 안됨)
 				User idxget = (User)userObj;
 				int userU_idx = idxget.getU_idx();
 				// 로그인 되어있는 세션의 u_idx가져오는 방법 2 
@@ -309,6 +321,23 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 				}
 				else view = "user/access-denied";
 				break;
+				
+			case "/post-reply.do": // 답글기능
+				boardService = BoardService.getInstance();
+				
+				session = request.getSession();
+				userObj = session.getAttribute("user"); 
+				User replyUser = (User)userObj; // 답글 작성자 정보 저장
+				
+				String p_postB_idx = request.getParameter("b_idx"); // 원글 b_idx 저장
+				Board p_post = boardService.getPost(p_postB_idx); // 원글 정보 저장
+				
+				request.setAttribute("replyUser", replyUser);
+				request.setAttribute("p_post", p_post);
+							
+				view = "user/post-reply";
+				break;
+				// https://ssmlim.tistory.com/7 계층형 답글 참고 블로그
 
 		}
 		

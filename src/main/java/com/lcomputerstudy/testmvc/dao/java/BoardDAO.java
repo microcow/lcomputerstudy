@@ -55,20 +55,19 @@ public class BoardDAO {
 		PreparedStatement pstmt = null;
 			
 		try {
-			String sql = "insert into board(b_title,b_content,b_date,b_writer,u_idx) values(?,?,NOW(),?,?)";
+			String sql = "insert into board(b_title,b_content,b_date,b_writer,u_idx,p_post) values(?,?,NOW(),?,?,?)";
 			conn = DBConnection.getConnection();
 			pstmt = conn.prepareStatement(sql);
-			pstmt.setString(1, board.getTitle());
+			if (board.getP_posttitle() != null) { // 작성 게시글이 답글일 경우 앞에 (RE:원글제목) 이 붙도록 설정
+				pstmt.setString(1, "(RE:" + board.getP_posttitle() + ") " + board.getTitle());
+			}
+			else pstmt.setString(1, board.getTitle());
 			pstmt.setString(2, board.getContent());
 			// 세 번째 파라미터는 NOW()로 설정되어 있으므로 생략 
 			pstmt.setString(3, board.getWriter());
 			pstmt.setInt(4, board.getIdx()); // u_idx는 왜래키이다. 매칭되는 값이 없으면 오류 발생
+			pstmt.setInt(5, board.getP_post());
 			
-			// 디버그 출력
-			System.out.println(board.getTitle());
-			System.out.println(board.getContent());
-			System.out.println(board.getWriter());
-			System.out.println(board.getIdx());
 			pstmt.executeUpdate();
 			
 			/*pstmt.close(); // 쿼리를 한번 사용한 후 재사용하려면 executeUpdate를(쿼리실행) 한 후 close하고 다시 prepareStatement 해야한다.

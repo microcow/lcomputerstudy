@@ -5,12 +5,27 @@ public class Board {
 	private String content;
 	private String date;
 	private String writer;
+	private String p_posttitle;
 	private int idx;
 	private int b_idx;
 	private int u_idx;
 	private int view;
 	private int rownum;
+	private int p_post; // 부모 게시글
 	
+	
+	public String getP_posttitle() {
+		return p_posttitle;
+	}
+	public void setP_posttitle(String p_posttitle) {
+		this.p_posttitle = p_posttitle;
+	}
+	public int getP_post() {
+		return p_post;
+	}
+	public void setP_post(int p_post) {
+		this.p_post = p_post;
+	}
 	public int getU_idx() {
 		return u_idx;
 	}
