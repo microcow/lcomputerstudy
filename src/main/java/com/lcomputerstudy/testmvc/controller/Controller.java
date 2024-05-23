@@ -208,7 +208,7 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 				view = "user/create";
 				break;
 				
-			case "/create.process.do":
+			case "/create.process.do": // 최초 작성, 답글 작성 모두 글 작성 시 create.process.do로 오게 되어있음
 				Board board = new Board();
 				BoardService boardService = BoardService.getInstance();
 				if (request.getParameter("title") != null) { // 아무것도 입력안했을때 null이 아닌 공백으로 작성됨 수정필요
@@ -222,8 +222,11 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 				if (request.getParameter("p_posttitle") != null) { // 작성 글이 답글일 경우 p_posttitle 값 세팅
 					board.setP_posttitle(request.getParameter("p_posttitle"));
 				}
+				if (request.getParameter("p_post") != null) { // 답글일 경우에 부모 grport값 +1
+					board.setGrpord(Integer.parseInt(request.getParameter("grpord"))+1); 
+				}
+				board.setDepth(Integer.parseInt(request.getParameter("depth"))+1); // depth의 default값 1로 설정, 답글일 경우 부모의 depth값+1
 				
-				// board.setDepth(Integer.parseInt(request.getParameter("depth"))); 
 				/* 0523 학원에서 여까지함. 답글일 경우 db에서 원글(답글단 글)의 뎁스 수치를 가져오도록 해야함
 				 	원글의 뎁스가져와서 답글의 뎁스는 원글의 뎁스 +1로 db에 저장되게 설정해야함(어떻게 가져올것인가)
 				 	(db에서 원글의 depth 값 가져오는 메서드 작성해야할듯)
@@ -255,7 +258,7 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 			
 			case "/post-detail.do":
 				boardService = BoardService.getInstance();
-				boardService.updateView(request.getParameter("b_idx"));
+				boardService.updateView(request.getParameter("b_idx")); // 조회수 증가
 				Board board2 = new Board();
 				board2 = boardService.getPost(request.getParameter("b_idx")); // board2의 값 세팅
 				request.setAttribute("board2", board2); 

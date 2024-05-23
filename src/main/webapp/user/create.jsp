@@ -14,6 +14,8 @@
 	<!-- 작성 날짜와 조회수는 글 목록에서 노출되도록 -->
 	<input type="hidden" name="idx" value="${sessionScope.user.u_idx }">
 	<input type="hidden" name="writer" value="${sessionScope.user.u_name }">
+	<input type="hidden" name="depth" value="0">
+	<input type="hidden" name="grpord" value="0">
 	<p> <input type="submit" value="작성하기"></p>
 </form>
 </body>

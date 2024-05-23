@@ -55,7 +55,7 @@ public class BoardDAO {
 		PreparedStatement pstmt = null;
 			
 		try {
-			String sql = "insert into board(b_title,b_content,b_date,b_writer,u_idx,p_post) values(?,?,NOW(),?,?,?)";
+			String sql = "insert into board(b_title,b_content,b_date,b_writer,u_idx,p_post,depth,grpord) values(?,?,NOW(),?,?,?,?,?)";
 			conn = DBConnection.getConnection();
 			pstmt = conn.prepareStatement(sql);
 			if (board.getP_posttitle() != null) { // 작성 게시글이 답글일 경우 앞에 (RE:원글제목) 이 붙도록 설정
@@ -67,6 +67,8 @@ public class BoardDAO {
 			pstmt.setString(3, board.getWriter());
 			pstmt.setInt(4, board.getIdx()); // u_idx는 왜래키이다. 매칭되는 값이 없으면 오류 발생
 			pstmt.setInt(5, board.getP_post());
+			pstmt.setInt(6, board.getDepth());
+			pstmt.setInt(7, board.getGrpord());
 			
 			pstmt.executeUpdate();
 			
@@ -159,6 +161,9 @@ public Board getPost(String b_idx) { // 상세 글 가져오기 메서드
 			board.setContent(rs.getString("b_content"));
 			board.setView(rs.getInt("b_view"));
 			board.setU_idx(rs.getInt("u_idx"));
+			board.setP_post(rs.getInt("p_post"));
+			board.setDepth(rs.getInt("depth"));
+			board.setGrpord(rs.getInt("grpord"));
 		}
 		
 	} catch (Exception e) {

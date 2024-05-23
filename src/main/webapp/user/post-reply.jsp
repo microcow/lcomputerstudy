@@ -15,8 +15,10 @@
 	<!-- 작성 날짜와 조회수는 글 목록에서 노출되도록 -->
 	<input type="hidden" name="idx" value="${replyUser.u_idx }">
 	<input type="hidden" name="writer" value="${replyUser.u_name }">
-	<input type="hidden" name="p_post" value="${p_post.b_idx}">
+	<input type="hidden" name="p_post" value="${p_post.b_idx}"> <!-- p_post는 부모 게시글임 -->
 	<input type="hidden" name="p_posttitle" value="${p_post.title}">
+	<input type="hidden" name="depth" value="${p_post.depth}">
+	<input type="hidden" name="grpord" value="${p_post.grpord}">
 	<p> <input type="submit" value="답글달기"></p>
 </form>
 </body>

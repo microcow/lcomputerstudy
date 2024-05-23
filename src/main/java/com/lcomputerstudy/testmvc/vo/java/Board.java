@@ -13,8 +13,15 @@ public class Board {
 	private int rownum;
 	private int p_post; // 부모 게시글
 	private int depth;
+	private int grpord;
 	
 	
+	public int getGrpord() {
+		return grpord;
+	}
+	public void setGrpord(int grpord) {
+		this.grpord = grpord;
+	}
 	public int getDepth() {
 		return depth;
 	}

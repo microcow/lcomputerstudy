@@ -55,31 +55,38 @@
 	<p> <input type="submit" value="수정하기"></p>
 </form>
 	
-	<p> <input type="button" value="답글달기" id="btnReply"></p> <!-- js와 스크립트로 버튼 동작 시켜보기 -->
+	<form action="post-reply.do" method="post">
+	<input type="hidden" name="b_idx" value="${board2.b_idx}">
+	<p> <input type="submit" value="답글달기"></p>
+</form>
+
+	<!-- <p> <input type="button" value="답글달기" id="btnReply"></p> --> <!-- js와 스크립트로 버튼 동작 시켜보기 -->
 	
 <form action="create.list.do" method="post">
 	<input type="hidden" name="b_idx" value="${board2.b_idx}">
 	<p> <input type="submit" value="돌아가기"></p>
 </form>
 	
-<script>
+	
+<script> /*
 
-const btnReply = document.getElementById("btnReply");
+const btnReply = document.getElementById("btnReply"); */
 
 /*function handleBtnReply() {
 	alert('js');
 	window.location.href = "post-reply.do?b_idx=${board2.b_idx}";
 } 스크립트로 작성 방법 1 */
 
+/*
 btnReply.addEventListener('click', function () {
 	window.location.href = "post-reply.do?b_idx=${board2.b_idx}";
-}); /* 스크립트로 작성 방법 2 */
+});  스크립트로 작성 방법 2 */
 
 /* js로 작성했을때 1
 $('#btnReply').on('click', function () {
 	alert("update");
 	window.location.href = "post-reply.do?b_idx=${board2.b_idx}";
 });*/
-</script>
+</script> 
 </body>
 </html>
