@@ -68,14 +68,19 @@ public class BoardDAO {
 			pstmt.setInt(4, board.getIdx()); // u_idx는 왜래키이다. 매칭되는 값이 없으면 오류 발생
 			pstmt.setInt(5, board.getP_post());
 			pstmt.setInt(6, board.getDepth());
+<<<<<<< Updated upstream
 			pstmt.setInt(7, board.getGrpord());
 			pstmt.executeUpdate();
+=======
+			pstmt.setInt(7, board.getGrpord());		
+>>>>>>> Stashed changes
 			
 			/*pstmt.close(); // (동일한 conn에서)쿼리를 한번 사용한 후 재사용하려면 executeUpdate를(쿼리실행) 한 후 close하고 다시 prepareStatement 해야한다.
 			sql = "update asdfasdfsaf";
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setInt(1, 5);
 			pstmt.executeUpdate();*/
+			
 			
 		} catch( Exception ex) {
 			System.out.println("SQLException : "+ex.getMessage());
@@ -89,6 +94,7 @@ public class BoardDAO {
 			}
 		}
 	}
+<<<<<<< Updated upstream
 public void setp_post(){ // 작성 글이 원글일 경우 p_post값을 b_idx값으로 설정하는 메서드
 	Connection conn = null;
 	PreparedStatement pstmt = null;
@@ -184,7 +190,50 @@ public void setGrpord(){ // 나의 grpord값과 ibx값 파라미터로 받아와
 }
 	
 public ArrayList<Board> getPostList(int page) { // 글 목록 불러오는 메서드
+=======
+	
+	public void setP_post(int idx) { // post값이 0일 경우(원글일 경우) b_idx값을 자신의 post값으로 설정
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		int post = 0;
+>>>>>>> Stashed changes
 		
+		try { // 자신의 p_post 값 불러오기
+		conn = DBConnection.getConnection();
+		String sql = "SELECT p_post FROM board WHERE b_idx=?";
+		pstmt = conn.prepareStatement(sql);
+		pstmt.setInt(1, idx);
+		rs = pstmt.executeQuery();
+		
+		
+		while(rs.next()){
+			post = rs.getInt("b_idx");
+		}
+		if (post == 0) { // p_post 값이 0이라면 (원글이라면) b_idx값을 post값으로 설정
+			pstmt.close();
+			sql = "UPDATE board SET p_post = ? WHERE b_idx = ?";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, post);
+			pstmt.setInt(2, post);
+			pstmt.executeUpdate();
+		}
+		
+		} catch( Exception ex){
+			System.out.println("SQLException : "+ex.getMessage());
+			ex.printStackTrace();
+		} finally {
+			try {
+				if (rs != null) rs.close();
+				if (pstmt != null) pstmt.close();
+				if (conn != null) conn.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+public ArrayList<Board> getPostList(int page) { // 글 목록 불러오는 메서드
 		Connection conn = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
@@ -199,7 +248,7 @@ public ArrayList<Board> getPostList(int page) { // 글 목록 불러오는 메�
 					.append("				ta.*\n")
 					.append("FROM 			board as ta,\n")
 					.append("				(SELECT @ROWNUM := 0) as tb\n")
-					.append("LIMIT			?, ?\n") // post-list 2페이지로 안넘어져가서 임시로 limit 10으로 설정
+					.append("LIMIT			?, ?\n")
 					.toString();
 	       	pstmt = conn.prepareStatement(query);
 	       	pstmt.setInt(1, pageNum);

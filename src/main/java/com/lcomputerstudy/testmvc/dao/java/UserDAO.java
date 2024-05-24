@@ -37,7 +37,9 @@ public class UserDAO {
 			String query = "Select *"
 					+ " From user";
 			pstmt = conn.prepareStatement(query); // SQL 쿼리를 데이터베이스에 보내기 위한 PreparedStatement 객체를 생성
-			rs = pstmt.executeQuery(); // SQL 쿼리 실행 결과가 저장된다
+			rs = pstmt.executeQuery(); 
+			// pstmt.executeQuery(); : 쿼리를 실행하는 코드
+			// rs = pstmt.executeQuery(); : 실행된 코드가 저장된다
 			list = new ArrayList<User>();
 			
 			while(rs.next()) {

@@ -215,9 +215,16 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 				board.setContent(request.getParameter("content"));
 				board.setWriter(request.getParameter("writer"));
 				board.setIdx(Integer.parseInt(request.getParameter("idx")));
+<<<<<<< Updated upstream
 				if (request.getParameter("p_post") != null) { // 작성 글이 답글일 경우 p_post값 세팅
 					board.setP_post(Integer.parseInt(request.getParameter("p_post")));
 				}	
+=======
+				if (request.getParameter("p_post") != null) { // 작성 글이 답글일 경우 부모 p_post 값 세팅
+					board.setP_post(Integer.parseInt(request.getParameter("p_post")));
+				}
+				
+>>>>>>> Stashed changes
 				if (request.getParameter("p_posttitle") != null) { // 작성 글이 답글일 경우 p_posttitle 값 세팅
 					board.setP_posttitle(request.getParameter("p_posttitle"));
 				}
@@ -226,9 +233,12 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 				} 
 				board.setDepth(Integer.parseInt(request.getParameter("depth"))+1); // depth의 default값 1로 설정, 답글일 경우 부모의 depth값+1
 				
+<<<<<<< Updated upstream
 				boardService.insertBoard(board); // 글 db에 저장
 				boardService.setp_post(); // 생성되는 글이 원글일 경우 p_post값 세팅
 											/// 이쯤에 grpord값도 셋팅되는 메서드 호출코드 입력해야할듯
+=======
+>>>>>>> Stashed changes
 				
 				
 				view = "user/login-result";				
