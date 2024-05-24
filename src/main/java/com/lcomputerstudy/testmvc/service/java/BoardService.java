@@ -42,4 +42,7 @@ public class BoardService {
 	public void changePost(Board changeBoard) {
 		dao.changePost(changeBoard);
 	}
+	public void setp_post() {
+		dao.setp_post();
+	}
 }

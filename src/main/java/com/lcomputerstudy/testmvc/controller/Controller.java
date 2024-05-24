@@ -211,32 +211,27 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 			case "/create.process.do": // 최초 작성, 답글 작성 모두 글 작성 시 create.process.do로 오게 되어있음
 				Board board = new Board();
 				BoardService boardService = BoardService.getInstance();
-				if (request.getParameter("title") != null) { // 아무것도 입력안했을때 null이 아닌 공백으로 작성됨 수정필요
 				board.setTitle(request.getParameter("title"));
 				board.setContent(request.getParameter("content"));
 				board.setWriter(request.getParameter("writer"));
 				board.setIdx(Integer.parseInt(request.getParameter("idx")));
-				if (request.getParameter("p_post") != null) { // 작성 글이 답글일 경우 p_post 값 세팅
+				if (request.getParameter("p_post") != null) { // 작성 글이 답글일 경우 p_post값 세팅
 					board.setP_post(Integer.parseInt(request.getParameter("p_post")));
-				}
+				}	
 				if (request.getParameter("p_posttitle") != null) { // 작성 글이 답글일 경우 p_posttitle 값 세팅
 					board.setP_posttitle(request.getParameter("p_posttitle"));
 				}
 				if (request.getParameter("p_post") != null) { // 답글일 경우에 부모 grport값 +1
 					board.setGrpord(Integer.parseInt(request.getParameter("grpord"))+1); 
-				}
+				} 
 				board.setDepth(Integer.parseInt(request.getParameter("depth"))+1); // depth의 default값 1로 설정, 답글일 경우 부모의 depth값+1
 				
-				/* 0523 학원에서 여까지함. 답글일 경우 db에서 원글(답글단 글)의 뎁스 수치를 가져오도록 해야함
-				 	원글의 뎁스가져와서 답글의 뎁스는 원글의 뎁스 +1로 db에 저장되게 설정해야함(어떻게 가져올것인가)
-				 	(db에서 원글의 depth 값 가져오는 메서드 작성해야할듯)
-				 */
+				boardService.insertBoard(board); // 글 db에 저장
+				boardService.setp_post(); // 생성되는 글이 원글일 경우 p_post값 세팅
+											/// 이쯤에 grpord값도 셋팅되는 메서드 호출코드 입력해야할듯
 				
-				boardService.insertBoard(board);
 				
-				view = "user/login-result";
-				}
-				else view = "user/access-denied";
+				view = "user/login-result";				
 				break;
 				
 			case "/create.list.do":	
@@ -340,7 +335,9 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 							
 				view = "user/post-reply";
 				break;
-				// https://ssmlim.tistory.com/7 계층형 답글 참고 블로그
+				/// https://ssmlim.tistory.com/7 계층형 답글 참고 블로그
+				/// 난관 1(해결완료). 글 작성 시 원글일 경우 자신의 b_idx값을 어떻게 p_post로 설정하게 할것인가 
+				/// 난관 2. depth값은 바로 직전글에서 +1 되면 되지만, grpord는 원글은 무조건 0이고 최신 글의 값이 빨리와야함
 
 		}
 		

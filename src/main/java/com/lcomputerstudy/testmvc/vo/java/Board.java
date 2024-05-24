@@ -11,7 +11,7 @@ public class Board {
 	private int u_idx;
 	private int view;
 	private int rownum;
-	private int p_post; // 부모 게시글
+	private int p_post; // 원글 b_idx값
 	private int depth;
 	private int grpord;
 	

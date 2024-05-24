@@ -69,10 +69,9 @@ public class BoardDAO {
 			pstmt.setInt(5, board.getP_post());
 			pstmt.setInt(6, board.getDepth());
 			pstmt.setInt(7, board.getGrpord());
-			
 			pstmt.executeUpdate();
 			
-			/*pstmt.close(); // 쿼리를 한번 사용한 후 재사용하려면 executeUpdate를(쿼리실행) 한 후 close하고 다시 prepareStatement 해야한다.
+			/*pstmt.close(); // (동일한 conn에서)쿼리를 한번 사용한 후 재사용하려면 executeUpdate를(쿼리실행) 한 후 close하고 다시 prepareStatement 해야한다.
 			sql = "update asdfasdfsaf";
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setInt(1, 5);
@@ -90,6 +89,100 @@ public class BoardDAO {
 			}
 		}
 	}
+public void setp_post(){ // 작성 글이 원글일 경우 p_post값을 b_idx값으로 설정하는 메서드
+	Connection conn = null;
+	PreparedStatement pstmt = null;
+	ResultSet rs = null;
+	ArrayList<Board> list = null;
+	
+	try {
+		String sql = "SELECT * FROM board where p_post=0"; // p_post 값이 0인(원글인) 행
+		conn = DBConnection.getConnection();
+		pstmt = conn.prepareStatement(sql);
+		rs = pstmt.executeQuery();
+        list = new ArrayList<Board>(); 
+        
+        while(rs.next()){     
+        	Board board = new Board();
+        	board.setB_idx(rs.getInt("b_idx"));
+        	board.setP_post(rs.getInt("b_idx"));
+        	list.add(board);
+        }
+        pstmt.close();
+        sql = "UPDATE board SET p_post = ? WHERE b_idx = ?"; // 저장된 행들의 p_post값을 b_idx값으로 변경
+		pstmt = conn.prepareStatement(sql);
+		for (Board board : list) {
+	        pstmt.setInt(1, board.getB_idx());
+	        pstmt.setInt(2, board.getB_idx());
+	        pstmt.executeUpdate();
+	    }
+        
+        
+}catch( Exception ex) {
+	System.out.println("SQLException : "+ex.getMessage());
+	ex.printStackTrace();
+} finally {
+	try {
+		if (rs != null) rs.close();
+		if (pstmt != null) pstmt.close();
+		if (conn != null) conn.close();	
+	} catch (SQLException e) {
+		e.printStackTrace();
+	}
+}
+}
+
+public void setGrpord(){ // 나의 grpord값과 ibx값 파라미터로 받아와야할듯
+	/* 1. 원글의 grpord값은 무조건 0이어야 한다.
+	 * 2. 나의 글은 무조건 직전글 grpord값의 +1이 되어야 한다.
+	 * 3. 나의 글의 grpord값과 동일하거나 큰 값을 가진 행의 grpord값은 +1되어야 한다.
+	 * 개발 방안 : 
+	 * grpord값은 db에서 default값 0으로 주고,
+	 * reply.jsp에서 grpord값을 직전글 grpord값+1 시켜주고,
+	 * 이 메서드에서 내 grpord값과 동일하거나 그거보다 큰 값은 +1씩해주는거지 (where p_port로 묶고 and ? => grpord and ibx!=? 로 나는 제외) 그렇게 추출한 값들의 grpord값을 update문으로 +1하면 될듯?
+	 */
+	Connection conn = null;
+	PreparedStatement pstmt = null;
+	ResultSet rs = null;
+	ArrayList<Board> list = null;
+	
+	try {
+		String sql = "SELECT * FROM board where p_post=0";
+		conn = DBConnection.getConnection();
+		pstmt = conn.prepareStatement(sql);
+		rs = pstmt.executeQuery();
+        list = new ArrayList<Board>(); 
+        
+        while(rs.next()){     
+        	Board board = new Board();
+        	board.setB_idx(rs.getInt("b_idx"));
+        	board.setP_post(rs.getInt("b_idx"));
+        	list.add(board);
+        }
+        pstmt.close();
+        sql = "UPDATE board SET grpord += 1 WHERE ";
+		pstmt = conn.prepareStatement(sql);
+		for (Board board : list) {
+	        pstmt.setInt(1, board.getB_idx());
+	        pstmt.setInt(2, board.getB_idx());
+	        pstmt.executeUpdate();
+	    }
+        
+        
+}catch( Exception ex) {
+	System.out.println("SQLException : "+ex.getMessage());
+	ex.printStackTrace();
+} finally {
+	try {
+		if (rs != null) rs.close();
+		if (pstmt != null) pstmt.close();
+		if (conn != null) conn.close();	
+	} catch (SQLException e) {
+		e.printStackTrace();
+	}
+}
+}
+	
 public ArrayList<Board> getPostList(int page) { // 글 목록 불러오는 메서드
 		
 		Connection conn = null;
