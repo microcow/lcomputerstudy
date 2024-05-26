@@ -45,4 +45,11 @@ public class BoardService {
 	public void setp_post() {
 		dao.setp_post();
 	}
+	public void setGrpord() {
+		dao.setGrpord();
+	}
+	
+	public void setReplyGrpord(int p_post, int grpord){
+		dao.setReplyGrpord(p_post, grpord);
+	}
 }

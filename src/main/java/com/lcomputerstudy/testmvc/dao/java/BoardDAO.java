@@ -68,12 +68,10 @@ public class BoardDAO {
 			pstmt.setInt(4, board.getIdx()); // u_idx는 왜래키이다. 매칭되는 값이 없으면 오류 발생
 			pstmt.setInt(5, board.getP_post());
 			pstmt.setInt(6, board.getDepth());
-<<<<<<< Updated upstream
+
 			pstmt.setInt(7, board.getGrpord());
 			pstmt.executeUpdate();
-=======
-			pstmt.setInt(7, board.getGrpord());		
->>>>>>> Stashed changes
+
 			
 			/*pstmt.close(); // (동일한 conn에서)쿼리를 한번 사용한 후 재사용하려면 executeUpdate를(쿼리실행) 한 후 close하고 다시 prepareStatement 해야한다.
 			sql = "update asdfasdfsaf";
@@ -94,8 +92,9 @@ public class BoardDAO {
 			}
 		}
 	}
-<<<<<<< Updated upstream
-public void setp_post(){ // 작성 글이 원글일 경우 p_post값을 b_idx값으로 설정하는 메서드
+
+	
+public void setp_post(){ // 작성 글이 원글일 경우 p_post값을 설정하는 메서드
 	Connection conn = null;
 	PreparedStatement pstmt = null;
 	ResultSet rs = null;
@@ -106,7 +105,7 @@ public void setp_post(){ // 작성 글이 원글일 경우 p_post값을 b_idx값
 		conn = DBConnection.getConnection();
 		pstmt = conn.prepareStatement(sql);
 		rs = pstmt.executeQuery();
-        list = new ArrayList<Board>(); 
+        list = new ArrayList<Board>();
         
         while(rs.next()){     
         	Board board = new Board();
@@ -136,45 +135,20 @@ public void setp_post(){ // 작성 글이 원글일 경우 p_post값을 b_idx값
 		e.printStackTrace();
 	}
 }
+
 }
 
-public void setGrpord(){ // 나의 grpord값과 ibx값 파라미터로 받아와야할듯
-	/* 1. 원글의 grpord값은 무조건 0이어야 한다.
-	 * 2. 나의 글은 무조건 직전글 grpord값의 +1이 되어야 한다.
-	 * 3. 나의 글의 grpord값과 동일하거나 큰 값을 가진 행의 grpord값은 +1되어야 한다.
-	 * 개발 방안 : 
-	 * grpord값은 db에서 default값 0으로 주고,
-	 * reply.jsp에서 grpord값을 직전글 grpord값+1 시켜주고,
-	 * 이 메서드에서 내 grpord값과 동일하거나 그거보다 큰 값은 +1씩해주는거지 (where p_port로 묶고 and ? => grpord and ibx!=? 로 나는 제외) 그렇게 추출한 값들의 grpord값을 update문으로 +1하면 될듯?
-	 */
+public void setGrpord(){ // 모든 grpord값 +1하는 메소드인데 안쓰임
 	Connection conn = null;
 	PreparedStatement pstmt = null;
 	ResultSet rs = null;
-	ArrayList<Board> list = null;
 	
 	try {
-		String sql = "SELECT * FROM board where p_post=0";
+		String sql = "UPDATE board SET grpord = grpord +1";
 		conn = DBConnection.getConnection();
 		pstmt = conn.prepareStatement(sql);
-		rs = pstmt.executeQuery();
-        list = new ArrayList<Board>(); 
-        
-        while(rs.next()){     
-        	Board board = new Board();
-        	board.setB_idx(rs.getInt("b_idx"));
-        	board.setP_post(rs.getInt("b_idx"));
-        	list.add(board);
-        }
-        pstmt.close();
-        sql = "UPDATE board SET grpord += 1 WHERE ";
-		pstmt = conn.prepareStatement(sql);
-		for (Board board : list) {
-	        pstmt.setInt(1, board.getB_idx());
-	        pstmt.setInt(2, board.getB_idx());
-	        pstmt.executeUpdate();
-	    }
-        
-        
+		pstmt.executeUpdate();
+
 }catch( Exception ex) {
 	System.out.println("SQLException : "+ex.getMessage());
 	ex.printStackTrace();
@@ -187,53 +161,39 @@ public void setGrpord(){ // 나의 grpord값과 ibx값 파라미터로 받아와
 		e.printStackTrace();
 	}
 }
-}
+}	
+
+public void setReplyGrpord(int p_post, int grpord){// 부모글 grpord보다 큰애들 1씩 밀기
+	Connection conn = null;
+	PreparedStatement pstmt = null;
+	ResultSet rs = null;
 	
-public ArrayList<Board> getPostList(int page) { // 글 목록 불러오는 메서드
-=======
-	
-	public void setP_post(int idx) { // post값이 0일 경우(원글일 경우) b_idx값을 자신의 post값으로 설정
-		Connection conn = null;
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
-		int post = 0;
->>>>>>> Stashed changes
-		
-		try { // 자신의 p_post 값 불러오기
+	try { 
+		String sql = "UPDATE board SET grpord = grpord +1 WHERE p_post = ? AND grpord > ?"; 
 		conn = DBConnection.getConnection();
-		String sql = "SELECT p_post FROM board WHERE b_idx=?";
 		pstmt = conn.prepareStatement(sql);
-		pstmt.setInt(1, idx);
-		rs = pstmt.executeQuery();
-		
-		
-		while(rs.next()){
-			post = rs.getInt("b_idx");
-		}
-		if (post == 0) { // p_post 값이 0이라면 (원글이라면) b_idx값을 post값으로 설정
-			pstmt.close();
-			sql = "UPDATE board SET p_post = ? WHERE b_idx = ?";
-			pstmt = conn.prepareStatement(sql);
-			pstmt.setInt(1, post);
-			pstmt.setInt(2, post);
-			pstmt.executeUpdate();
-		}
-		
-		} catch( Exception ex){
-			System.out.println("SQLException : "+ex.getMessage());
-			ex.printStackTrace();
-		} finally {
-			try {
-				if (rs != null) rs.close();
-				if (pstmt != null) pstmt.close();
-				if (conn != null) conn.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}
+		pstmt.setInt(1, p_post);
+		pstmt.setInt(2, grpord);
+		pstmt.executeUpdate();
+
+}catch( Exception ex) {
+	System.out.println("SQLException : "+ex.getMessage());
+	ex.printStackTrace();
+} finally {
+	try {
+		if (rs != null) rs.close();
+		if (pstmt != null) pstmt.close();
+		if (conn != null) conn.close();	
+	} catch (SQLException e) {
+		e.printStackTrace();
 	}
-	
-public ArrayList<Board> getPostList(int page) { // 글 목록 불러오는 메서드
+}
+}	
+
+
+ // 글 목록 불러오는 메서드 (https://blog.naver.com/lcomputerstudy/222078387068 참고)
+ /// pagination이 board테이블이 아닌 user테이블의 수에 따라 다음페이지가 생성되므로 수정해야함		
+public ArrayList<Board> getPostList(int page) { 
 		Connection conn = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
@@ -248,6 +208,8 @@ public ArrayList<Board> getPostList(int page) { // 글 목록 불러오는 메�
 					.append("				ta.*\n")
 					.append("FROM 			board as ta,\n")
 					.append("				(SELECT @ROWNUM := 0) as tb\n")
+					// 여기서 group by p_post를 하게 될경우 그룹의 최상단의 행 하나 씩만 출력되므로 x
+					.append("ORDER BY 		ta.p_post desc, ta.grpord ASC\n")
 					.append("LIMIT			?, ?\n")
 					.toString();
 	       	pstmt = conn.prepareStatement(query);
@@ -280,6 +242,7 @@ public ArrayList<Board> getPostList(int page) { // 글 목록 불러오는 메�
 		
 		return list;
 	}
+
 public Board getPost(String b_idx) { // 상세 글 가져오기 메서드
 	Connection conn = null;
 	PreparedStatement pstmt = null;

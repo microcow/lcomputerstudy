@@ -215,32 +215,28 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 				board.setContent(request.getParameter("content"));
 				board.setWriter(request.getParameter("writer"));
 				board.setIdx(Integer.parseInt(request.getParameter("idx")));
-<<<<<<< Updated upstream
-				if (request.getParameter("p_post") != null) { // 작성 글이 답글일 경우 p_post값 세팅
-					board.setP_post(Integer.parseInt(request.getParameter("p_post")));
-				}	
-=======
-				if (request.getParameter("p_post") != null) { // 작성 글이 답글일 경우 부모 p_post 값 세팅
+
+				if (request.getParameter("p_post") != null) { // p_post값 세팅 (원글일 경우 0으로 셋팅, 답글일 경우 부모 b_idx값으로 셋팅)
 					board.setP_post(Integer.parseInt(request.getParameter("p_post")));
 				}
 				
->>>>>>> Stashed changes
+				if (request.getParameter("p_post") != null) { // 답글일 경우 부모의 grpord보다 큰애들은 자신의 grpord +1로 바꾸는 메소드 실행하고 그 후에 나는 부모grpord+1 (이러면 최신글일수록 부모글 바로 아래에 올 수 있음)
+					boardService.setReplyGrpord(Integer.parseInt(request.getParameter("p_post")), Integer.parseInt(request.getParameter("grpord")));
+					board.setGrpord(Integer.parseInt(request.getParameter("grpord"))+1); // 답글일 경우에 부모 grport값 +1
+				}
+				else {
+					// boardService.setGrpord(); 안쓰는 메소드 (시행착오)
+					board.setGrpord(0); // 원글일 경우 본인의 값은 0으로 셋팅
+				}			
+
 				if (request.getParameter("p_posttitle") != null) { // 작성 글이 답글일 경우 p_posttitle 값 세팅
 					board.setP_posttitle(request.getParameter("p_posttitle"));
-				}
-				if (request.getParameter("p_post") != null) { // 답글일 경우에 부모 grport값 +1
-					board.setGrpord(Integer.parseInt(request.getParameter("grpord"))+1); 
-				} 
-				board.setDepth(Integer.parseInt(request.getParameter("depth"))+1); // depth의 default값 1로 설정, 답글일 경우 부모의 depth값+1
-				
-<<<<<<< Updated upstream
-				boardService.insertBoard(board); // 글 db에 저장
-				boardService.setp_post(); // 생성되는 글이 원글일 경우 p_post값 세팅
-											/// 이쯤에 grpord값도 셋팅되는 메서드 호출코드 입력해야할듯
-=======
->>>>>>> Stashed changes
-				
-				
+				}				
+				board.setDepth(Integer.parseInt(request.getParameter("depth"))+1); // depth의 default값 1로 설정, 답글일 경우 부모의 depth값+1			
+
+				boardService.insertBoard(board); // 글 db에 저장(저장 시 primary key값인 b_idx값 생성됨)
+				boardService.setp_post(); // 생성되는 글이 원글일 경우(p_post값이 0일경우) p_post값 세팅(자신의 b_idx값으로)
+						
 				view = "user/login-result";				
 				break;
 				
@@ -256,8 +252,7 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 				
 				request.setAttribute("postList", postList);
 				request.setAttribute("pagination", pagination);
-				// pagination이 board테이블이 아닌 user테이블의 수에 따라 다음페이지가 생성되므로 수정해야함 
-				
+							
 				view = "user/postlist";
 				break;
 			
