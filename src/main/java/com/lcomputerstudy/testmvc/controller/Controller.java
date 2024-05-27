@@ -234,7 +234,8 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 				}				
 				board.setDepth(Integer.parseInt(request.getParameter("depth"))+1); // depth의 default값 1로 설정, 답글일 경우 부모의 depth값+1			
 
-				boardService.insertBoard(board); // 글 db에 저장(저장 시 primary key값인 b_idx값 생성됨)
+				int post = boardService.insertBoard(board); // 글 db에 저장(저장 시 primary key값인 b_idx값 생성됨)
+				//// 여기까지함. insertBoard에서 바로 p_post값 가져오는거 까지 설정했으니 post값을 setp_post메소드에 넘겨주고 자신의 p_post값을 넘겨받은 post값으로 설정하게 바꾸면될듯
 				boardService.setp_post(); // 생성되는 글이 원글일 경우(p_post값이 0일경우) p_post값 세팅(자신의 b_idx값으로)
 						
 				view = "user/login-result";				

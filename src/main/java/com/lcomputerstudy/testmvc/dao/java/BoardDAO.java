@@ -1,5 +1,6 @@
 package com.lcomputerstudy.testmvc.dao.java;
 
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -9,7 +10,6 @@ import java.util.ArrayList;
 import com.lcomputerstudy.testmvc.database.java.DBConnection;
 import com.lcomputerstudy.testmvc.vo.java.Board;
 import com.lcomputerstudy.testmvc.vo.java.Pagination;
-import com.lcomputerstudy.testmvc.vo.java.User;
 
 public class BoardDAO {
 	public static BoardDAO dao = null;
@@ -50,10 +50,14 @@ public class BoardDAO {
 		return count;
 	}
 	
-	public void insertBoard(Board board) {
+	public int insertBoard(Board board) {
 		Connection conn = null;
 		PreparedStatement pstmt = null;
-			
+		ResultSet rs = null;
+		int fstp_post = board.getP_post(); // 저장되는 글이 원글일 경우 0을 리턴할 것이고 답글일 경우 부모의 b_ibx값을 리턴할 것
+		int p_post = 0; // 저장되는 글이 원글일 경우 자신의 b_ibx 값을 담을 인스턴스
+		
+	
 		try {
 			String sql = "insert into board(b_title,b_content,b_date,b_writer,u_idx,p_post,depth,grpord) values(?,?,NOW(),?,?,?,?,?)";
 			conn = DBConnection.getConnection();
@@ -66,19 +70,30 @@ public class BoardDAO {
 			// 세 번째 파라미터는 NOW()로 설정되어 있으므로 생략 
 			pstmt.setString(3, board.getWriter());
 			pstmt.setInt(4, board.getIdx()); // u_idx는 왜래키이다. 매칭되는 값이 없으면 오류 발생
-			pstmt.setInt(5, board.getP_post());
+			pstmt.setInt(5, board.getP_post());	
 			pstmt.setInt(6, board.getDepth());
-
 			pstmt.setInt(7, board.getGrpord());
-			pstmt.executeUpdate();
-
+			pstmt.executeUpdate(); // update문 실행 db에 저장.
+				
 			
-			/*pstmt.close(); // (동일한 conn에서)쿼리를 한번 사용한 후 재사용하려면 executeUpdate를(쿼리실행) 한 후 close하고 다시 prepareStatement 해야한다.
-			sql = "update asdfasdfsaf";
-			pstmt = conn.prepareStatement(sql);
-			pstmt.setInt(1, 5);
-			pstmt.executeUpdate();*/
-			
+			if(fstp_post == 0) { // 저장되는 글이 원글일 경우, 자신의 b_ibx값을 return할 것이고 아니라면 board.getP_post(부모의 ibx값)를 return
+				
+				// ※ db에 저장해야 생성되는 primary key를 즉시 가져오는 법
+				pstmt.close(); // (동일한 conn에서)쿼리를 한번 사용한 후 재사용하려면 executeUpdate를(쿼리실행) 한 후 close하고 다시 prepareStatement 해야한다.
+				sql = "SELECT LAST_INSERT_ID()";
+				// 가장 최근에 성공적으로 수행된 INSERT 구문에 대해서 (update, delete 등 에는 영향받지 않음)자동으로 생성되는 AUTO_INCREMENT인 column 의 값을 반환
+				// LAST_INSERT_ID()는 AUTO_INCREMENT 타입 컬럼을 반환하는 것이지 primary key를 반환하는 것이 아니다 (대부분의 primary key는 AUTO_INCREMENT 타입이겠지만 100%는 아님)
+				// conn은 close하지 않았기에(세션유지) 다른 데이터와 혼동되지 않음
+				pstmt = conn.prepareStatement(sql);
+				rs = pstmt.executeQuery();
+				
+				if (rs.next()) {
+					p_post = (int)rs.getLong(1); 
+	                // getLong(1)은 결과 집합(Result Set)의 첫 번째 열(column)의 값을 long타입으로 가져온다.
+				}
+			}
+			else p_post=board.getP_post(); // 원글이 아닐 경우 p_post는 부모 b_idx값으로 설정
+				
 			
 		} catch( Exception ex) {
 			System.out.println("SQLException : "+ex.getMessage());
@@ -91,6 +106,7 @@ public class BoardDAO {
 				e.printStackTrace();
 			}
 		}
+		return p_post; 
 	}
 
 	
