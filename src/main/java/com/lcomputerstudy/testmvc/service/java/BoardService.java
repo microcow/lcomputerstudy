@@ -21,8 +21,8 @@ public class BoardService {
 		return service;
 	
 	}
-	public int insertBoard(Board board) {
-		return dao.insertBoard(board);
+	public void insertBoard(Board board) {
+		dao.insertBoard(board);
 	}
 	public ArrayList<Board> getPostList(int page) {
 		return dao.getPostList(page);

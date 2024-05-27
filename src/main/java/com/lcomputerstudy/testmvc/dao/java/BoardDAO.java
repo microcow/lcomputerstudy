@@ -50,11 +50,10 @@ public class BoardDAO {
 		return count;
 	}
 	
-	public int insertBoard(Board board) {
+	public void insertBoard(Board board) {
 		Connection conn = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
-		int fstp_post = board.getP_post(); // 저장되는 글이 원글일 경우 0을 리턴할 것이고 답글일 경우 부모의 b_ibx값을 리턴할 것
 		int p_post = 0; // 저장되는 글이 원글일 경우 자신의 b_ibx 값을 담을 인스턴스
 		
 	
@@ -75,25 +74,29 @@ public class BoardDAO {
 			pstmt.setInt(7, board.getGrpord());
 			pstmt.executeUpdate(); // update문 실행 db에 저장.
 				
+				
+			// ※ db에 저장해야 생성되는 primary key를 즉시 가져오는 방법
+			pstmt.close(); // (동일한 conn에서)쿼리를 한번 사용한 후 재사용하려면 executeUpdate를(쿼리실행) 한 후 close하고 다시 prepareStatement 해야한다.
+			sql = "SELECT LAST_INSERT_ID()";
+			// 가장 최근에 성공적으로 수행된 INSERT 구문에 대해서 (update, delete 등 에는 영향받지 않음)자동으로 생성되는 AUTO_INCREMENT인 column 의 값을 반환
+			// LAST_INSERT_ID()는 AUTO_INCREMENT 타입 컬럼을 반환하는 것이지 primary key를 반환하는 것이 아니다 (대부분의 primary key는 AUTO_INCREMENT 타입이겠지만 100%는 아님)
+			// conn은 close하지 않았기에(세션유지) 다른 데이터와 혼동되지 않음
+			pstmt = conn.prepareStatement(sql); // 새로운 PreparedStatement 객체 생성
+			rs = pstmt.executeQuery();
 			
-			if(fstp_post == 0) { // 저장되는 글이 원글일 경우, 자신의 b_ibx값을 return할 것이고 아니라면 board.getP_post(부모의 ibx값)를 return
-				
-				// ※ db에 저장해야 생성되는 primary key를 즉시 가져오는 법
-				pstmt.close(); // (동일한 conn에서)쿼리를 한번 사용한 후 재사용하려면 executeUpdate를(쿼리실행) 한 후 close하고 다시 prepareStatement 해야한다.
-				sql = "SELECT LAST_INSERT_ID()";
-				// 가장 최근에 성공적으로 수행된 INSERT 구문에 대해서 (update, delete 등 에는 영향받지 않음)자동으로 생성되는 AUTO_INCREMENT인 column 의 값을 반환
-				// LAST_INSERT_ID()는 AUTO_INCREMENT 타입 컬럼을 반환하는 것이지 primary key를 반환하는 것이 아니다 (대부분의 primary key는 AUTO_INCREMENT 타입이겠지만 100%는 아님)
-				// conn은 close하지 않았기에(세션유지) 다른 데이터와 혼동되지 않음
-				pstmt = conn.prepareStatement(sql);
-				rs = pstmt.executeQuery();
-				
-				if (rs.next()) {
-					p_post = (int)rs.getLong(1); 
-	                // getLong(1)은 결과 집합(Result Set)의 첫 번째 열(column)의 값을 long타입으로 가져온다.
-				}
+			if (rs.next()) {
+				p_post = (int)rs.getLong(1); // getLong(1)은 결과 집합(Result Set)의 첫 번째 열(column)의 값을 long타입으로 가져온다.
 			}
-			else p_post=board.getP_post(); // 원글이 아닐 경우 p_post는 부모 b_idx값으로 설정
+				pstmt.close();
 				
+			// 자신(b_idx)의 p_post 값이 0일 경우(원글일 경우) p_post값을 자신의 b_idx값으로 세팅
+			sql = "UPDATE board SET p_post = ? WHERE b_idx = ? AND p_post = ?";  
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, p_post);
+			pstmt.setInt(2, p_post);
+			pstmt.setInt(3, 0);
+			pstmt.executeUpdate();
+								
 			
 		} catch( Exception ex) {
 			System.out.println("SQLException : "+ex.getMessage());
@@ -106,11 +109,11 @@ public class BoardDAO {
 				e.printStackTrace();
 			}
 		}
-		return p_post; 
+		
 	}
 
 	
-public void setp_post(){ // 작성 글이 원글일 경우 p_post값을 설정하는 메서드
+public void setp_post(){ // 작성 글이 원글일 경우 p_post값을 설정하는 메서드 // 해당 과정을 insertBoard 메서드에서 처리하도록 수정하였기에 안쓰이는 메서드임
 	Connection conn = null;
 	PreparedStatement pstmt = null;
 	ResultSet rs = null;
@@ -154,7 +157,7 @@ public void setp_post(){ // 작성 글이 원글일 경우 p_post값을 설정�
 
 }
 
-public void setGrpord(){ // 모든 grpord값 +1하는 메소드인데 안쓰임
+public void setGrpord(){ // 모든 grpord값 +1하는 메소드인데 안쓰이는 메서드임(시행착오)
 	Connection conn = null;
 	PreparedStatement pstmt = null;
 	ResultSet rs = null;

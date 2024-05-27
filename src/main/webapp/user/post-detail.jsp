@@ -56,11 +56,15 @@
 </form>
 	
 	<form action="post-reply.do" method="post">
-	<input type="hidden" name="b_idx" value="${board2.b_idx}">
+	<input type="hidden" name="b_idx" value="${board2.b_idx}"> <!-- 답글다는 글 b_idx값 전달 -->
 	<p> <input type="submit" value="답글달기"></p>
 </form>
+<!-- <p> <input type="button" value="답글달기" id="btnReply"></p> --> <!-- js와 스크립트로 버튼 동작 시켜보기 -->
 
-	<!-- <p> <input type="button" value="답글달기" id="btnReply"></p> --> <!-- js와 스크립트로 버튼 동작 시켜보기 -->
+<form action="creat-reply.do" method="post">
+	<input type="hidden" name="b_idx" value="${board2.b_idx}"> <!-- 댓글다는 글 b_idx값 전달 -->
+	<p> <input type="submit" value="댓글달기"></p>
+</form>	
 	
 <form action="create.list.do" method="post">
 	<input type="hidden" name="b_idx" value="${board2.b_idx}">

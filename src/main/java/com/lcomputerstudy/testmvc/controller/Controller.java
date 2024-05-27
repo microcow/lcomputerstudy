@@ -15,6 +15,7 @@ import com.lcomputerstudy.testmvc.service.java.BoardService;
 import com.lcomputerstudy.testmvc.service.java.UserService;
 import com.lcomputerstudy.testmvc.vo.java.Board;
 import com.lcomputerstudy.testmvc.vo.java.Pagination;
+import com.lcomputerstudy.testmvc.vo.java.Reply;
 import com.lcomputerstudy.testmvc.vo.java.User;
 
 @WebServlet("*.do") 
@@ -163,7 +164,7 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 			user = userService.loginUser(id,pw);
 			//System.out.println(user.getU_idx()); 값이 없는데 출력 시도 시 NullPointerException 발생
 						
-			if(user != null) {
+			if(user != null) { // 로그인 회원 세션 생성
 				HttpSession session = request.getSession();
 				// HttpSession: 이 클래스는 서버와 클라이언트 간의 세션을 나타냅니다. 세션은 클라이언트(예: 웹 브라우저)와 서버 간의 상태 정보를 저장하는 메커니즘입니다. 세션을 통해 사용자가 웹사이트를 탐색하는 동안 정보를 유지할 수 있습니다.
 				/* request.getSession(): 이 메서드는 HttpServletRequest 객체(request)에서 호출됩니다. 이 메서드는 다음 중 하나를 수행합니다:
@@ -215,28 +216,24 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 				board.setContent(request.getParameter("content"));
 				board.setWriter(request.getParameter("writer"));
 				board.setIdx(Integer.parseInt(request.getParameter("idx")));
-
-				if (request.getParameter("p_post") != null) { // p_post값 세팅 (원글일 경우 0으로 셋팅, 답글일 경우 부모 b_idx값으로 셋팅)
+				if (request.getParameter("p_post") != null) { // 답글일 경우, p_post를 부모 b_idx값으로 셋팅
 					board.setP_post(Integer.parseInt(request.getParameter("p_post")));
-				}
-				
-				if (request.getParameter("p_post") != null) { // 답글일 경우 부모의 grpord보다 큰애들은 자신의 grpord +1로 바꾸는 메소드 실행하고 그 후에 나는 부모grpord+1 (이러면 최신글일수록 부모글 바로 아래에 올 수 있음)
+				}				
+				if (request.getParameter("p_post") != null) { // 답글일 경우, 동일 p_post값을 가진 행들 중 부모의 grpord보다 큰애들은 grpord +1로 바꾸는 메소드 실행하고 그 후에 나는 부모grpord+1 (이러면 최신글일수록 부모글 바로 아래에 올 수 있음)
 					boardService.setReplyGrpord(Integer.parseInt(request.getParameter("p_post")), Integer.parseInt(request.getParameter("grpord")));
 					board.setGrpord(Integer.parseInt(request.getParameter("grpord"))+1); // 답글일 경우에 부모 grport값 +1
 				}
 				else {
 					// boardService.setGrpord(); 안쓰는 메소드 (시행착오)
 					board.setGrpord(0); // 원글일 경우 본인의 값은 0으로 셋팅
-				}			
-
+				}
 				if (request.getParameter("p_posttitle") != null) { // 작성 글이 답글일 경우 p_posttitle 값 세팅
 					board.setP_posttitle(request.getParameter("p_posttitle"));
 				}				
 				board.setDepth(Integer.parseInt(request.getParameter("depth"))+1); // depth의 default값 1로 설정, 답글일 경우 부모의 depth값+1			
 
-				int post = boardService.insertBoard(board); // 글 db에 저장(저장 시 primary key값인 b_idx값 생성됨)
-				//// 여기까지함. insertBoard에서 바로 p_post값 가져오는거 까지 설정했으니 post값을 setp_post메소드에 넘겨주고 자신의 p_post값을 넘겨받은 post값으로 설정하게 바꾸면될듯
-				boardService.setp_post(); // 생성되는 글이 원글일 경우(p_post값이 0일경우) p_post값 세팅(자신의 b_idx값으로)
+				boardService.insertBoard(board); // 글 db에 저장 (+ 저장되는 글이 원글일 경우 p_post값 세팅)
+				// boardService.setp_post(); // 생성되는 글이 원글일 경우(p_post값이 0일경우) p_post값 세팅(자신의 b_idx값으로) // 해당 과정을 insertBoard 메서드에서 처리하도록 수정하였기에 안쓰임
 						
 				view = "user/login-result";				
 				break;
@@ -278,8 +275,8 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 							
 				Object userObj = session.getAttribute("user"); 
 				// getAttribute는 return타입이 Object 
-				// 세션은 login-process.do에서 "user"값이 셋팅되어있음
-				// 굳이 session.getAttribute("user");로 안불러오고 이미 user라는 객체가 login-process.do에서 생성되어있기에 바로 user객체를 써도됨 (예시. user.getU_idx();) (단, user객체가 case내에서 생성되어있으면 안됨)
+				// ★ session에는 login-process.do에서 이미 "user"값이 셋팅되어있기에 getAttribute("user")로 정보를 불러올 수 있는거임
+				// ★ 굳이 session.getAttribute("user");로 안불러오고 이미 user라는 객체가 login-process.do에서 생성되어있기에 바로 user객체를 써도됨 (예시. user.getU_idx();) (단, user객체가 case내에서 생성되어있으면 안됨)
 				User idxget = (User)userObj;
 				int userU_idx = idxget.getU_idx();
 				// 로그인 되어있는 세션의 u_idx가져오는 방법 2 
@@ -341,9 +338,36 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 							
 				view = "user/post-reply";
 				break;
-				/// https://ssmlim.tistory.com/7 계층형 답글 참고 블로그
-				/// 난관 1(해결완료). 글 작성 시 원글일 경우 자신의 b_idx값을 어떻게 p_post로 설정하게 할것인가 
-				/// 난관 2. depth값은 바로 직전글에서 +1 되면 되지만, grpord는 원글은 무조건 0이고 최신 글의 값이 빨리와야함
+				
+			case "/creat-reply.do": //댓글기능
+				boardService = BoardService.getInstance();
+				
+				p_postB_idx = request.getParameter("b_idx");
+				p_post = boardService.getPost(p_postB_idx);
+				request.setAttribute("p_post", p_post); // 원글 정보 전달 
+				
+				/* request.setAttribute("b_idx", request.getParameter("b_idx"));
+				 * 인스턴스가 아니라 기본형(b_idx값)만 보내려면 이렇게 입력하고 jsp에서 ${b_idx} 이렇게 사용하면 됨
+				 */
+				
+				view = "user/reply";
+				break;
+				
+			case "/creat-reply-process.do": //댓글기능
+				boardService = BoardService.getInstance();
+				
+				session = request.getSession();
+				userObj = session.getAttribute("user"); // 로그인 과정에서 "user"값이 셋팅되어있기에 getAttribute로 불러올 수 있음
+				replyUser = (User)userObj; // 로그인된 세션의 User정보 저장
+				
+				Reply reply = new Reply();
+				reply.setWriter(replyUser.getU_name()); // 댓글 작성자 이름 세팅
+				reply.setB_idx(request.getParameter("b_idx")); // 댓글 단 글 b_idx값 세팅
+				reply.setContent(request.getParameter("content")); // 댓글 내용 세팅
+				// insert 메서드 생성할 것 (작성자 이름, 날짜, 내용, grpord, depth 설정)
+				
+				view = "user/post-detail/jsp";
+				break;
 
 		}
 		
