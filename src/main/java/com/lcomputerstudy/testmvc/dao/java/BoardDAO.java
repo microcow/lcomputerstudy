@@ -389,7 +389,7 @@ public void deletePost(String b_idx){
 		Connection conn = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
-		int p_post = 0;
+		int r_idx = 0;
 	
 		try {
 			String sql = "insert into reply(r_writer,r_content,b_idx,r_date,p_post,grpord,depth) values(?,?,?,NOW(),?,?,?)";
@@ -410,15 +410,15 @@ public void deletePost(String b_idx){
 			
 			
 			if (rs.next()) {
-				p_post = (int)rs.getLong(1); // 방금 생성된 댓글의 r_idx값 저장
+				r_idx = (int)rs.getLong(1); // 방금 생성된 댓글의 r_idx값 저장
 			}
 				pstmt.close();
 				
 			// 자신(r_idx)의 p_post 값이 0일 경우(첫 댓글일 경우) p_post값을 자신의 r_idx값으로 세팅
 			sql = "UPDATE reply SET p_post = ? WHERE r_idx = ? AND p_post = ?";  
 			pstmt = conn.prepareStatement(sql);
-			pstmt.setInt(1, p_post);
-			pstmt.setInt(2, p_post);
+			pstmt.setInt(1, r_idx);
+			pstmt.setInt(2, r_idx);
 			pstmt.setInt(3, 0);
 			pstmt.executeUpdate();
 								
@@ -503,7 +503,45 @@ public void deletePost(String b_idx){
 		}
 	}
 	}	
-	
+	public Reply getReply(String r_idx) { // 댓글 정보 가져오기 메서드
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		Reply reply = new Reply();
+		
+		try {
+			conn = DBConnection.getConnection();
+			String query = "Select *"
+					+ " From reply"
+					+ " Where r_idx = ?";
+			pstmt = conn.prepareStatement(query);
+			pstmt.setString(1, r_idx);
+			rs = pstmt.executeQuery();
+			 
+			while(rs.next()) {
+				reply.setB_idx(rs.getString("b_idx"));
+				reply.setR_idx(rs.getString("r_idx"));
+				reply.setWriter(rs.getString("r_writer"));
+				reply.setContent(rs.getString("r_content"));
+				reply.setDate(rs.getString("r_date"));
+				reply.setP_post(rs.getInt("p_post"));
+				reply.setDepth(rs.getInt("depth"));
+				reply.setGrpord(rs.getInt("grpord"));
+			}
+			
+		} catch (Exception e) {
+			
+		} finally {
+			try {
+				rs.close();
+				pstmt.close();
+				conn.close();				
+			}catch(SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return reply;
+		}
 }
 
 

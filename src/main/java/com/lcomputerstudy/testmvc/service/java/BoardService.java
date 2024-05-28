@@ -62,4 +62,7 @@ public class BoardService {
 	public void setComentGrpord(int p_post, int grpord){
 		dao.setComentGrpord(p_post, grpord);
 	}
+	public Reply getReply(String r_idx) {
+		return dao.getReply(r_idx);
+	}
 }

@@ -85,7 +85,7 @@
             <th>댓글 내용</th>
             <th>작성일</th>
         </tr>
-        <c:forEach items="${replyList}" var="reply" >
+        <c:forEach items="${replyList}" var="reply" > <!-- "replyList"를 java에서 전달받고 reply에 foreach로 저장함 -->
            <tr>
    	         <td>${reply.writer}</td>
    	         <td>${reply.content}</td>
@@ -93,9 +93,7 @@
    	         <td>
    	         <form action="creat-reply.do" method="post">
 			<input type="hidden" name="b_idx" value="${board2.b_idx}">
-			<input type="hidden" name="group" value="${reply.grpord}">
-			<input type="hidden" name="depth" value="${reply.depth}">
-			<input type="hidden" name="depth" value="${reply.p_post}">
+			<input type="hidden" name="r_idx" value="${reply.r_idx}">
 			<p> <input type="submit" value="댓글달기"></p>
 			</form>
 			</td>

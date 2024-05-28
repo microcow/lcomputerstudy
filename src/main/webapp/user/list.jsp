@@ -57,6 +57,8 @@
 			<th>이름</th>
 		</tr>
 		<c:forEach items="${list}" var="item" varStatus="status"> <!-- varStatus는 딱히 신경x -->
+		<!-- java에서 list라는 이름으로 받아온 ArrayList를 받아온 다음, forEach문으로
+		 "item"에 첫번째 요소부터 저장하고 아래 코드 실행 후 그 다음 요소~~ 반복 -->
 			 <tr>
 				<td><a href="user-detail.do?u_idx=${item.u_idx}">${item.rownum}</a></td> <!-- rownum 번호를 누르면 u_idx를 detail.do로 전달 -->
 				<td>${item.u_id}</td>
