@@ -5,6 +5,7 @@ import java.util.ArrayList;
 
 import com.lcomputerstudy.testmvc.dao.java.BoardDAO;
 import com.lcomputerstudy.testmvc.vo.java.Board;
+import com.lcomputerstudy.testmvc.vo.java.Reply;
 import com.lcomputerstudy.testmvc.vo.java.User;
 
 public class BoardService {
@@ -51,5 +52,14 @@ public class BoardService {
 	
 	public void setReplyGrpord(int p_post, int grpord){
 		dao.setReplyGrpord(p_post, grpord);
+	}
+	public void insertReply(Reply reply) {
+		dao.insertReply(reply);
+	}
+	public ArrayList<Reply> getReplyList(String b_idx) {
+		return dao.getReplyList(b_idx);
+	}
+	public void setComentGrpord(int p_post, int grpord){
+		dao.setComentGrpord(p_post, grpord);
 	}
 }

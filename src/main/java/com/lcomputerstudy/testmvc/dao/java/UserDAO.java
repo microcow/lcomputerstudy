@@ -38,18 +38,19 @@ public class UserDAO {
 					+ " From user";
 			pstmt = conn.prepareStatement(query); // SQL 쿼리를 데이터베이스에 보내기 위한 PreparedStatement 객체를 생성
 			rs = pstmt.executeQuery(); 
-			// pstmt.executeQuery(); : 쿼리를 실행하는 코드
-			// rs = pstmt.executeQuery(); : 실행된 코드가 저장된다
+			// ★ pstmt.executeQuery(); : 쿼리를 실행하는 코드
+			// ★ rs = pstmt.executeQuery(); : 실행된 코드의 결과 데이터가 저장된다
 			list = new ArrayList<User>();
 			
 			while(rs.next()) {
 				User user = new User();
-				user.setU_idx(rs.getInt("u_idx"));
+				user.setU_idx(rs.getInt("u_idx")); 
 			   	user.setU_id(rs.getString("u_id"));
        	       	user.setU_name(rs.getString("u_name"));
        	       	user.setU_tel(rs.getString("u_tel"));
        	       	user.setU_age(rs.getString("u_age"));
        	       	list.add(user);
+       	  // ★ rs.getInt 혹은 rs.getString은 파라미터에 적은 섹션의 값을 return한다.
 			}
 		} catch (Exception e) {
 			

@@ -1,7 +1,6 @@
 package com.lcomputerstudy.testmvc.controller;
 
 import java.io.IOException;
-import java.sql.Date;
 import java.util.ArrayList;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -51,6 +50,7 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 		String view = null;
 		String pw = null;
 		String id = null;
+		
 		
 		command = checkSession(request, response, command);
 		
@@ -219,8 +219,10 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 				if (request.getParameter("p_post") != null) { // 답글일 경우, p_post를 부모 b_idx값으로 셋팅
 					board.setP_post(Integer.parseInt(request.getParameter("p_post")));
 				}				
-				if (request.getParameter("p_post") != null) { // 답글일 경우, 동일 p_post값을 가진 행들 중 부모의 grpord보다 큰애들은 grpord +1로 바꾸는 메소드 실행하고 그 후에 나는 부모grpord+1 (이러면 최신글일수록 부모글 바로 아래에 올 수 있음)
-					boardService.setReplyGrpord(Integer.parseInt(request.getParameter("p_post")), Integer.parseInt(request.getParameter("grpord")));
+				if (request.getParameter("p_post") != null) { // 답글일 경우, 동일 p_post값을 가진 행들 중 원글의 grpord보다 큰애들은 grpord +1로 바꾸는 메소드 실행하고 그 후에 나의 grpord 값은 원글의grpord+1 (이러면 최신글일수록 부모글 바로 아래에 올 수 있음)
+					boardService
+						.setReplyGrpord(Integer.parseInt(request.getParameter("p_post")),
+										Integer.parseInt(request.getParameter("grpord")));
 					board.setGrpord(Integer.parseInt(request.getParameter("grpord"))+1); // 답글일 경우에 부모 grport값 +1
 				}
 				else {
@@ -255,11 +257,15 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 				break;
 			
 			case "/post-detail.do":
-				boardService = BoardService.getInstance();
-				boardService.updateView(request.getParameter("b_idx")); // 조회수 증가
+				ArrayList<Reply> replyList1 = null;
 				Board board2 = new Board();
+				boardService = BoardService.getInstance();
+				
+				boardService.updateView(request.getParameter("b_idx")); // 조회수 증가
 				board2 = boardService.getPost(request.getParameter("b_idx")); // board2의 값 세팅
-				request.setAttribute("board2", board2); 
+				replyList1 = boardService.getReplyList(request.getParameter("b_idx")); // 해당 글 댓글 목록 저장
+				request.setAttribute("board2", board2);
+				request.setAttribute("replyList", replyList1);
 				// getPost메소드를 통해 board2에 세터로 셋팅된 값만 jsp에 전달됨 (즉, 셋팅된 값만 post-detail jsp에서 사용 가능)
 				
 				view = "user/post-detail";
@@ -349,24 +355,54 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 				/* request.setAttribute("b_idx", request.getParameter("b_idx"));
 				 * 인스턴스가 아니라 기본형(b_idx값)만 보내려면 이렇게 입력하고 jsp에서 ${b_idx} 이렇게 사용하면 됨
 				 */
-				
+// 챗지피티 이용해서 jquery selector, jquery dom, jquery event, jquery ajax 예제 분석해 오시면 댓글 ajax 배울 때 도움 될 겁니다.
 				view = "user/reply";
 				break;
 				
 			case "/creat-reply-process.do": //댓글기능
+/// 문제 : grpord값이 제대로 안작동함 , depth값이 제대로 안작동함, p_post값이 제대로 안작동함
 				boardService = BoardService.getInstance();
+				Reply reply = new Reply();
+				Board fstBoard = new Board();
+				ArrayList<Reply> replyList2 = null; //replyList1은 detail.do에 있음
 				
 				session = request.getSession();
 				userObj = session.getAttribute("user"); // 로그인 과정에서 "user"값이 셋팅되어있기에 getAttribute로 불러올 수 있음
 				replyUser = (User)userObj; // 로그인된 세션의 User정보 저장
 				
-				Reply reply = new Reply();
 				reply.setWriter(replyUser.getU_name()); // 댓글 작성자 이름 세팅
 				reply.setB_idx(request.getParameter("b_idx")); // 댓글 단 글 b_idx값 세팅
-				reply.setContent(request.getParameter("content")); // 댓글 내용 세팅
-				// insert 메서드 생성할 것 (작성자 이름, 날짜, 내용, grpord, depth 설정)
+	
+				if (request.getParameter("p_post") != null) { // 대댓글일 경우 p_post값 세팅 (아닐경우 기본값 0)
+					reply.setP_post(Integer.parseInt(request.getParameter("p_post")));
+				}
+				if (request.getParameter("p_post") != null) { // 대댓글일 경우 depth값 부모depth값 +1로 세팅 (아닐경우 기본값 1)
+					reply.setDepth(Integer.parseInt(request.getParameter("depth"))+1);
+				}
+				else reply.setDepth(1);
+				if (request.getParameter("p_post") != null) { // 대댓글일 경우 댓글에 "ㄴ" 추가되도록 세팅
+					reply.setContent("ㄴ " + request.getParameter("content"));
+				}
+				else reply.setContent(request.getParameter("content")); // 아닐경우 그냥 댓글내용 세팅
 				
-				view = "user/post-detail/jsp";
+				if (request.getParameter("p_post") != null) { // 대댓글일 경우 동일 p_post값을 가진 행들 중 원댓글의 grpord보다 큰애들은 grpord +1로 바꾸는 메소드 실행하고 그 후에 나는 grpord 값은 원글 grpord+1
+					boardService
+					.setComentGrpord(Integer.parseInt(request.getParameter("p_post")),
+									 Integer.parseInt(request.getParameter("b_idx")));
+					reply.setGrpord(Integer.parseInt(request.getParameter("grpord"))+1);
+				}
+				else reply.setGrpord(0); // 원댓글일 경우 본인의 grpord값 0으로 셋팅
+				
+				boardService.insertReply(reply); // 댓글 db 저장	
+				
+				replyList2 = boardService.getReplyList(request.getParameter("b_idx")); // 댓글 list 세팅
+				fstBoard = boardService.getPost(request.getParameter("b_idx")); // 원글 내용 세팅
+				
+				request.setAttribute("replyList", replyList2); // 댓글 list 전달
+				request.setAttribute("board2", fstBoard);
+				// 원글 내용 전달 (전달되는 post_detail.jsp를 detail.do랑 함께 쓰기에, 댓글 작성하고도 같은 글을 노출시키기 위해선 넘겨주는 인스턴스 명을 일치시켜야함)
+		
+				view = "user/post-detail";
 				break;
 
 		}

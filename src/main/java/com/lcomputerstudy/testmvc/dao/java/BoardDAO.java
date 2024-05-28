@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import com.lcomputerstudy.testmvc.database.java.DBConnection;
 import com.lcomputerstudy.testmvc.vo.java.Board;
 import com.lcomputerstudy.testmvc.vo.java.Pagination;
+import com.lcomputerstudy.testmvc.vo.java.Reply;
 
 public class BoardDAO {
 	public static BoardDAO dao = null;
@@ -356,32 +357,155 @@ public void deletePost(String b_idx){
 		}
 	}
 }
-public void changePost(Board changeBoard){
-	Connection conn = null;
-	PreparedStatement pstmt = null;
-	
-	try {
-		conn = DBConnection.getConnection();
-		String query = "UPDATE board SET b_title=?, b_content=?, b_date=NOW(), b_writer=? WHERE b_idx=?";
-		pstmt = conn.prepareStatement(query);
-		pstmt.setString(1, changeBoard.getTitle());
-		pstmt.setString(2, changeBoard.getContent());
-		pstmt.setString(3, changeBoard.getWriter());
-		pstmt.setInt(4, changeBoard.getB_idx());
-		pstmt.executeUpdate();
+	public void changePost(Board changeBoard){
+		Connection conn = null;
+		PreparedStatement pstmt = null;
 		
-	} catch (Exception e) {
-		
-	} finally {
 		try {
-			//rs.close();
-			pstmt.close();
-			conn.close();				
-		}catch(SQLException e) {
-			e.printStackTrace();
+			conn = DBConnection.getConnection();
+			String query = "UPDATE board SET b_title=?, b_content=?, b_date=NOW(), b_writer=? WHERE b_idx=?";
+			pstmt = conn.prepareStatement(query);
+			pstmt.setString(1, changeBoard.getTitle());
+			pstmt.setString(2, changeBoard.getContent());
+			pstmt.setString(3, changeBoard.getWriter());
+			pstmt.setInt(4, changeBoard.getB_idx());
+			pstmt.executeUpdate();
+			
+		} catch (Exception e) {
+			
+		} finally {
+			try {
+				//rs.close();
+				pstmt.close();
+				conn.close();				
+			}catch(SQLException e) {
+				e.printStackTrace();
+			}
 		}
-	}
 	
 }
 
+	public void insertReply(Reply reply) { // 댓글 db에 저장하기
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		int p_post = 0;
+	
+		try {
+			String sql = "insert into reply(r_writer,r_content,b_idx,r_date,p_post,grpord,depth) values(?,?,?,NOW(),?,?,?)";
+			conn = DBConnection.getConnection();
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, reply.getWriter());
+			pstmt.setString(2, reply.getContent());
+			pstmt.setString(3, reply.getB_idx());
+			pstmt.setInt(4, reply.getP_post());
+			pstmt.setInt(5, reply.getGrpord());
+			pstmt.setInt(6, reply.getDepth());
+			pstmt.executeUpdate();
+					
+			pstmt.close();
+			sql = "SELECT LAST_INSERT_ID()";
+			pstmt = conn.prepareStatement(sql);
+			rs = pstmt.executeQuery();
+			
+			
+			if (rs.next()) {
+				p_post = (int)rs.getLong(1); // 방금 생성된 댓글의 r_idx값 저장
+			}
+				pstmt.close();
+				
+			// 자신(r_idx)의 p_post 값이 0일 경우(첫 댓글일 경우) p_post값을 자신의 r_idx값으로 세팅
+			sql = "UPDATE reply SET p_post = ? WHERE r_idx = ? AND p_post = ?";  
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, p_post);
+			pstmt.setInt(2, p_post);
+			pstmt.setInt(3, 0);
+			pstmt.executeUpdate();
+								
+			
+		} catch( Exception ex) {
+			System.out.println("SQLException : "+ex.getMessage());
+			ex.printStackTrace();
+		} finally {
+			try {
+				if (pstmt != null) pstmt.close();
+				if (conn != null) conn.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		
+	}
+
+	public ArrayList<Reply> getReplyList(String b_idx) { // 특정 글 댓글 리스트 불러오기
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		ArrayList<Reply> list = new ArrayList<Reply>();
+		
+		try {
+			conn = DBConnection.getConnection();
+			String query = "SELECT * FROM reply WHERE b_idx = ? ORDER BY p_post DESC, grpord ASC";
+	       	pstmt = conn.prepareStatement(query);
+	       	pstmt.setString(1, b_idx);
+	        rs = pstmt.executeQuery();
+	        
+	        while(rs.next()){     
+	        	Reply reply = new Reply();
+	        	reply.setR_idx(rs.getString("r_idx"));
+	        	reply.setB_idx(rs.getString("b_idx"));
+	        	reply.setWriter(rs.getString("r_writer"));
+	        	reply.setContent(rs.getString("r_content"));
+	        	reply.setDate(rs.getString("r_date"));
+	        	reply.setDepth(rs.getInt("depth"));
+	        	reply.setGrpord(rs.getInt("grpord"));
+	        	reply.setP_post(rs.getInt("p_post"));
+       	       	list.add(reply);
+	        }
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (rs != null) rs.close();
+				if (pstmt != null) pstmt.close();
+				if (conn != null) conn.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return list;
+	}
+	
+	public void setComentGrpord(int p_post, int grpord){// 원 댓글 grpord보다 큰애들 1씩 밀기
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		
+		try { 
+			String sql = "UPDATE reply SET grpord = grpord +1 WHERE p_post = ? AND grpord > ?"; 
+			conn = DBConnection.getConnection();
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, p_post);
+			pstmt.setInt(2, grpord);
+			pstmt.executeUpdate();
+
+	}catch( Exception ex) {
+		System.out.println("SQLException : "+ex.getMessage());
+		ex.printStackTrace();
+	} finally {
+		try {
+			if (rs != null) rs.close();
+			if (pstmt != null) pstmt.close();
+			if (conn != null) conn.close();	
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	}	
+	
 }
+
+
+
+

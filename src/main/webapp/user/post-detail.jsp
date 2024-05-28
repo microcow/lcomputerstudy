@@ -1,6 +1,10 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
+  
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+
 <!DOCTYPE html>
+
 <html>
 <head>
 <meta charset="UTF-8">
@@ -42,6 +46,9 @@
 				<td>${board2.title}</td>
 				<td>${board2.content}</td>
 			</tr>
+			
+			
+			
 	</table>
 	
 	<input type="hidden" name="b_idx" value="${board2.b_idx}">
@@ -70,6 +77,33 @@
 	<input type="hidden" name="b_idx" value="${board2.b_idx}">
 	<p> <input type="submit" value="돌아가기"></p>
 </form>
+
+ <h2>댓글</h2>
+    <table>
+        <tr>
+            <th>작성자</th>
+            <th>댓글 내용</th>
+            <th>작성일</th>
+        </tr>
+        <c:forEach items="${replyList}" var="reply" >
+           <tr>
+   	         <td>${reply.writer}</td>
+   	         <td>${reply.content}</td>
+   	         <td>${reply.date}</td>
+   	         <td>
+   	         <form action="creat-reply.do" method="post">
+			<input type="hidden" name="b_idx" value="${board2.b_idx}">
+			<input type="hidden" name="group" value="${reply.grpord}">
+			<input type="hidden" name="depth" value="${reply.depth}">
+			<input type="hidden" name="depth" value="${reply.p_post}">
+			<p> <input type="submit" value="댓글달기"></p>
+			</form>
+			</td>
+  	       </tr>
+	    </c:forEach>
+	</table>
+
+		
 	
 	
 <script> /*
