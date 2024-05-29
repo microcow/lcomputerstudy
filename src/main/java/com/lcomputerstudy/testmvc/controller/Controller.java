@@ -50,7 +50,7 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 		String view = null;
 		String pw = null;
 		String id = null;
-		
+		boolean isRedirected = false;
 		
 		command = checkSession(request, response, command);
 		
@@ -380,7 +380,7 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 					reply.setP_post(Integer.parseInt(request.getParameter("p_post")));
 				} 
 				/* request.getParameter("p_post")!=null 실행 시 오류 (빈 문자열을 return해서 발생하는 오류)
-				/////ㄴ !="" 으로 변경하니 정상동작함. 무슨차이? create.process에서는 정상적으로 동작했는데? 
+					ㄴ !="" 으로 변경하니 정상동작함. 무슨차이? create.process에서는 정상적으로 동작했는데? 
 				  		ㄴ 아마 게시글 작성은 답글작성과 jsp를 구분해서 사용하지만 댓글 작성은 대댓글작성과 같은jsp를 사용함이 원인인듯*/
 				if (request.getParameter("p_post") != "") { // 대댓글일 경우 depth값 부모depth값 +1로 세팅 (아닐경우 기본값 1)
 					reply.setDepth(Integer.parseInt(request.getParameter("depth"))+1);
@@ -394,7 +394,7 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 				if (request.getParameter("p_post") != "") { // 대댓글일 경우 동일 p_post값을 가진 행들 중 원댓글의 grpord보다 큰애들은 grpord +1로 바꾸는 메소드 실행하고 그 후에 나는 grpord 값은 원글 grpord+1
 					boardService
 					.setComentGrpord(Integer.parseInt(request.getParameter("p_post")),
-									 Integer.parseInt(request.getParameter("b_idx")));
+									 Integer.parseInt(request.getParameter("grpord")));
 					reply.setGrpord(Integer.parseInt(request.getParameter("grpord"))+1);
 				}
 				else reply.setGrpord(0); // 원댓글일 경우 본인의 grpord값 0으로 셋팅
@@ -408,19 +408,29 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 				request.setAttribute("board2", fstBoard);
 				// 원글 내용 전달 (전달되는 post_detail.jsp를 detail.do랑 함께 쓰기에, 댓글 작성하고난 후에도 같은 글을 노출시키기 위해선 넘겨주는 인스턴스 명을 일치시켜야함)
 		
+				//view = "user/post-detail.do?b_idx="; sendRedirect함수를 사용해 jsp를 거치지 않고 다시 .do로 이동
+				//isRedirected = true;
+				
 				view = "user/post-detail";
 				break;
+				
+			case "/ajax-test.do":
+				view = "user/ajax-test";
+				// 서버는 "user/ajax-test"라는 템플릿 파일을 로드하여 해당 내용을 응답으로 전송할 것입니다.
+				break; 
 
 		}
-		
-		RequestDispatcher rd = request.getRequestDispatcher(view+".jsp");
-		/* RequestDispatcher 란 현재 request에 담긴 정보를 저장하고 있다가
-		그 다음 페이지 그 다음 페이지에도 해당 정보를 볼수있게 계속 저장하는 기능. */
-		
-		rd.forward(request, response);
-		/* forward() 메소드는 현재 요청과 응답을 다른 서블릿이나 JSP로 전달합니다. 
-		이 경우에는 선택된 JSP 페이지에 현재 요청(request)과 응답(response)을 전달하여 해당 JSP 페이지가 실행되고 클라이언트에게 응답을 전송합니다. */
-		
+		if (!isRedirected) {
+			RequestDispatcher rd = request.getRequestDispatcher(view+".jsp");
+			/* RequestDispatcher 란 현재 request에 담긴 정보를 저장하고 있다가
+			그 다음 페이지 그 다음 페이지에도 해당 정보를 볼수있게 계속 저장하는 기능. */
+			
+			rd.forward(request, response);
+			/* forward() 메소드는 현재 요청과 응답을 다른 서블릿이나 JSP로 전달합니다. 
+			이 경우에는 선택된 JSP 페이지에 현재 요청(request)과 응답(response)을 전달하여 해당 JSP 페이지가 실행되고 클라이언트에게 응답을 전송합니다. */
+		} else 
+			response.sendRedirect(view);
+			// 이 함수는 view(URL)로 리다이렉션된다. (리다리엑션 될 경우 request.setAttribute한 정보를 사용할 수 없으므로 doGet방식으로 데이터 전달한다)
 		
 	}
 	

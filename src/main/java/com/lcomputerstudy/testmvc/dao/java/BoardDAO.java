@@ -437,7 +437,7 @@ public void deletePost(String b_idx){
 		
 	}
 
-	public ArrayList<Reply> getReplyList(String b_idx) { // 특정 글 댓글 리스트 불러오기
+	public ArrayList<Reply> getReplyList(String grpord) { // 특정 글 댓글 리스트 불러오기
 		Connection conn = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
@@ -447,7 +447,7 @@ public void deletePost(String b_idx){
 			conn = DBConnection.getConnection();
 			String query = "SELECT * FROM reply WHERE b_idx = ? ORDER BY p_post DESC, grpord ASC";
 	       	pstmt = conn.prepareStatement(query);
-	       	pstmt.setString(1, b_idx);
+	       	pstmt.setString(1, grpord);
 	        rs = pstmt.executeQuery();
 	        
 	        while(rs.next()){     
