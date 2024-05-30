@@ -345,61 +345,69 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 				view = "user/post-reply";
 				break;
 				
-			case "/creat-reply.do": //댓글기능
+			case "/creat-reply.do": //댓글기능 (아마 ajax기능하면 해당 case를 안쓰게될것)
 				boardService = BoardService.getInstance();
+				String prt = null;
+				Reply reply = new Reply();
 				
 				p_postB_idx = request.getParameter("b_idx");
-				p_post = boardService.getPost(p_postB_idx); // 원글(댓글을 작성한 게시글) 정보 저장
-				request.setAttribute("p_post", p_post); // 원글 정보 전달
+				//p_post = boardService.getPost(p_postB_idx); // 원글(댓글을 작성한 게시글) 정보 저장
+				//request.setAttribute("p_post", p_post); // 원글 정보 전달
 				
 				if(request.getParameter("r_idx") != null) {
-				Reply reply = boardService.getReply(request.getParameter("r_idx")); // 대댓글일 경우 원 댓글 정보 저장
-				request.setAttribute("reply", reply); // 원 댓글 정보 전달
-				}
+				reply = boardService.getReply(request.getParameter("r_idx")); // 대댓글일 경우 원 댓글 정보 저장
+				prt = String.valueOf(reply.getP_post());
+				//request.setAttribute("reply", reply); // 원 댓글 정보 전달
+				}	
 				
 				/* request.setAttribute("b_idx", request.getParameter("b_idx"));
 				 * 인스턴스가 아니라 기본형(b_idx값)만 jsp에 보내려면 이렇게 입력하고 jsp에서 ${b_idx} 이렇게 사용하면 됨
 				 */
-
-				view = "user/reply";
+				view = "/creat-reply-process.do?b_idx=" + p_postB_idx + "&p_post=" + prt;
+				//// redirection을 하는게 아니라 db에 저장하고 jsp로 넘겨준다음 ajax에서 success시 jsp로딩되게
+				/// 아마 ajax기능하면서 해당 case를 호출 안하고있음
 				break;
 				
 			case "/creat-reply-process.do": //댓글기능
 				boardService = BoardService.getInstance();
-				Reply reply = new Reply();
+				Reply reply2 = new Reply();
+				Reply reply3 = new Reply();
 				Board fstBoard = new Board();		
 						
 				session = request.getSession();
 				userObj = session.getAttribute("user"); // 로그인 과정에서 "user"값이 셋팅되어있기에 getAttribute로 불러올 수 있음
 				replyUser = (User)userObj; // 로그인된 세션의 User정보 저장
 				
-				reply.setWriter(replyUser.getU_name()); // 댓글 작성자 이름 세팅
-				reply.setB_idx(request.getParameter("b_idx")); // 댓글 단 글 b_idx값 세팅
+				reply2.setWriter(replyUser.getU_name()); // 댓글 작성자 이름 세팅
+				reply2.setB_idx(request.getParameter("b_idx")); // 댓글 단 글 b_idx값 세팅
 			
-				if (request.getParameter("p_post") != "") { // 대댓글일 경우 p_post값 세팅 (아닐경우 기본값 0)
-					reply.setP_post(Integer.parseInt(request.getParameter("p_post")));
+				if(request.getParameter("r_idx") != null) { // 대댓글일 경우 원 댓글 정보 저장
+					reply3 = boardService.getReply(request.getParameter("r_idx"));
+				}
+				if (request.getParameter("r_idx") != null) { // 대댓글일 경우 p_post값 세팅 (아닐경우 기본값 0)
+					reply2.setP_post(reply3.getP_post());
 				} 
 				/* request.getParameter("p_post")!=null 실행 시 오류 (빈 문자열을 return해서 발생하는 오류)
 					ㄴ !="" 으로 변경하니 정상동작함. 무슨차이? create.process에서는 정상적으로 동작했는데? 
 				  		ㄴ 아마 게시글 작성은 답글작성과 jsp를 구분해서 사용하지만 댓글 작성은 대댓글작성과 같은jsp를 사용함이 원인인듯*/
-				if (request.getParameter("p_post") != "") { // 대댓글일 경우 depth값 부모depth값 +1로 세팅 (아닐경우 기본값 1)
-					reply.setDepth(Integer.parseInt(request.getParameter("depth"))+1);
+				if (request.getParameter("r_idx") != null) { // 대댓글일 경우 depth값 부모depth값 +1로 세팅 (아닐경우 기본값 1)
+					reply2.setDepth(reply3.getDepth()+1);
 				}
-				else reply.setDepth(1);
-				if (request.getParameter("p_post") != "") { // 대댓글일 경우 댓글에 "ㄴ" 추가되도록 세팅
-					reply.setContent("ㄴ " + request.getParameter("content"));
-				}
-				else reply.setContent(request.getParameter("content")); // 아닐경우 그냥 댓글내용 세팅
-				
-				if (request.getParameter("p_post") != "") { // 대댓글일 경우 동일 p_post값을 가진 행들 중 원댓글의 grpord보다 큰애들은 grpord +1로 바꾸는 메소드 실행하고 그 후에 나는 grpord 값은 원글 grpord+1
+				else reply2.setDepth(1);
+				if (request.getParameter("comment2") != null) { // 대댓글일 경우 댓글에 "ㄴ" 추가되도록 세팅
+					reply2.setContent("ㄴ " + reply3.getContent());
+				} /////// 여기까지 했음 아래부터 다시 작성해야함 (등록을 눌렀을때 db에 저장되고 즉시 갱신되게 해야함)
+				//// https://api.jquery.com/attribute-equals-selector/ jquery 예제 사이트. select부분 볼것
+				else reply2.setContent(request.getParameter("comment2"));// 아닐경우 그냥 댓글내용 세팅
+				if (request.getParameter("r_idx") != null) { // 대댓글일 경우 동일 p_post값을 가진 행들 중 원댓글의 grpord보다 큰애들은 grpord +1로 바꾸는 메소드 실행하고 그 후에 나는 grpord 값은 원글 grpord+1
 					boardService
 					.setComentGrpord(Integer.parseInt(request.getParameter("p_post")),
 									 Integer.parseInt(request.getParameter("grpord")));
-					reply.setGrpord(Integer.parseInt(request.getParameter("grpord"))+1);
+					reply2.setGrpord(Integer.parseInt(request.getParameter("grpord"))+1);
 				}
-				else reply.setGrpord(0); // 원댓글일 경우 본인의 grpord값 0으로 셋팅
+				else reply2.setGrpord(0); // 원댓글일 경우 본인의 grpord값 0으로 셋팅
 				
-				boardService.insertReply(reply); // 댓글 db 저장	
+				boardService.insertReply(reply2); // 댓글 db 저장	
 				
 				replyList1 = boardService.getReplyList(request.getParameter("b_idx")); // 댓글 list 세팅
 				fstBoard = boardService.getPost(request.getParameter("b_idx")); // 원글 내용 세팅
