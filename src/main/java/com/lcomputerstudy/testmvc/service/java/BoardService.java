@@ -59,10 +59,13 @@ public class BoardService {
 	public ArrayList<Reply> getReplyList(String b_idx) {
 		return dao.getReplyList(b_idx);
 	}
-	public void setComentGrpord(int p_post, int grpord){
-		dao.setComentGrpord(p_post, grpord);
+	public void setCommentGrpord(int p_post, int grpord){
+		dao.setCommentGrpord(p_post, grpord);
 	}
 	public Reply getReply(String r_idx) {
 		return dao.getReply(r_idx);
+	}
+	public void changeReply(Reply changeReply){
+		dao.changeReply(changeReply);
 	}
 }

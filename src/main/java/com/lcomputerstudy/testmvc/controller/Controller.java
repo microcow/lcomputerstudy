@@ -371,7 +371,7 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 			case "/creat-reply-process.do": //댓글기능
 				boardService = BoardService.getInstance();
 				Reply reply2 = new Reply();
-				Reply reply3 = new Reply();
+				Reply reply3 = new Reply(); // 대댓글일 경우 원댓글 정보를 reply3에 저장
 				Board fstBoard = new Board();		
 						
 				session = request.getSession();
@@ -394,14 +394,13 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 					reply2.setDepth(reply3.getDepth()+1);
 				}
 				else reply2.setDepth(1);
-				if (request.getParameter("comment2") != null) { // 대댓글일 경우 댓글에 "ㄴ" 추가되도록 세팅
-					reply2.setContent("ㄴ " + reply3.getContent());
-				} /////// 여기까지 했음 아래부터 다시 작성해야함 (등록을 눌렀을때 db에 저장되고 즉시 갱신되게 해야함)
-				//// https://api.jquery.com/attribute-equals-selector/ jquery 예제 사이트. select부분 볼것
+				if (request.getParameter("r_idx") != null) { // 대댓글일 경우 댓글에 "ㄴ" 추가되도록 세팅
+					reply2.setContent("ㄴ " + request.getParameter("comment2"));
+				}
 				else reply2.setContent(request.getParameter("comment2"));// 아닐경우 그냥 댓글내용 세팅
 				if (request.getParameter("r_idx") != null) { // 대댓글일 경우 동일 p_post값을 가진 행들 중 원댓글의 grpord보다 큰애들은 grpord +1로 바꾸는 메소드 실행하고 그 후에 나는 grpord 값은 원글 grpord+1
 					boardService
-					.setComentGrpord(Integer.parseInt(request.getParameter("p_post")),
+					.setCommentGrpord(Integer.parseInt(request.getParameter("p_post")),
 									 Integer.parseInt(request.getParameter("grpord")));
 					reply2.setGrpord(Integer.parseInt(request.getParameter("grpord"))+1);
 				}
@@ -410,22 +409,41 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 				boardService.insertReply(reply2); // 댓글 db 저장	
 				
 				replyList1 = boardService.getReplyList(request.getParameter("b_idx")); // 댓글 list 세팅
-				fstBoard = boardService.getPost(request.getParameter("b_idx")); // 원글 내용 세팅
-				
 				request.setAttribute("replyList", replyList1); // 댓글 list 전달
-				request.setAttribute("board2", fstBoard);
-				// 원글 내용 전달 (전달되는 post_detail.jsp를 detail.do랑 함께 쓰기에, 댓글 작성하고난 후에도 같은 글을 노출시키기 위해선 넘겨주는 인스턴스 명을 일치시켜야함)
-		
-				//view = "user/post-detail.do?b_idx="; sendRedirect함수를 사용해 jsp를 거치지 않고 다시 .do로 이동
-				//isRedirected = true;
 				
-				view = "user/post-detail";
+				
+				fstBoard = boardService.getPost(request.getParameter("b_idx")); // 원글 내용 세팅
+				request.setAttribute("board2", fstBoard); 
+				// 원글 내용 전달 (전달되는 post_detail.jsp를 detail.do랑 함께 쓰기에, 댓글 작성하고난 후에도 같은 글을 노출시키기 위해선 넘겨주는 인스턴스 명을 일치시켜야함) 
+				// 댓글 부분만 즉시 갱신되도록 수정하였기에 더이상 원글 내용을 세팅하지 않아도 되지만 user/ajax-test에서 board2.b_idx를 쓰고있기 때문에 일단 전달 
+		
+				
+				//view = "user/post-detail.do?b_idx="; sendRedirect함수를 사용해 jsp를 거치지 않고 다시 .do로 이동 (여기선 사용안함)
+				
+				view = "user/ajax-test";
 				break;
 				
-			case "/ajax-test.do":
+			case "/creat-reply-change.do": // 댓글 수정기능
+				boardService = BoardService.getInstance();
+				
+				Reply changeReply = new Reply();
+				
+				changeReply.setContent(request.getParameter("changeComment"));
+				changeReply.setR_idx(request.getParameter("r_idx"));
+				
+				boardService.changeReply(changeReply);
+				
+				replyList1 = boardService.getReplyList(request.getParameter("b_idx")); // 댓글 list 세팅
+				
+				fstBoard = boardService.getPost(request.getParameter("b_idx")); // 원글 내용 세팅
+				request.setAttribute("board2", fstBoard); 
+				// 댓글 부분만 즉시 갱신되도록 수정하였기에 더이상 원글 내용을 세팅하지 않아도 되지만 user/ajax-test에서 board2.b_idx를 쓰고있기 때문에 일단 전달 
+				
+				request.setAttribute("replyList", replyList1); // 댓글 list 전달
+				
 				view = "user/ajax-test";
-				// 서버는 "user/ajax-test"라는 템플릿 파일을 로드하여 해당 내용을 응답으로 전송할 것입니다.
-				break; 
+
+				
 
 		}
 		if (!isRedirected) {

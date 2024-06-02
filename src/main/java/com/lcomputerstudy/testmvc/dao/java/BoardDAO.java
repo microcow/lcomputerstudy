@@ -477,7 +477,7 @@ public void deletePost(String b_idx){
 		return list;
 	}
 	
-	public void setComentGrpord(int p_post, int grpord){// 원 댓글 grpord보다 큰애들 1씩 밀기
+	public void setCommentGrpord(int p_post, int grpord){// 원 댓글 grpord보다 큰애들 1씩 밀기
 		Connection conn = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
@@ -542,6 +542,32 @@ public void deletePost(String b_idx){
 		}
 		return reply;
 		}
+	
+	
+	public void changeReply(Reply changeReply){
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		
+		try {
+			conn = DBConnection.getConnection();
+			String query = "UPDATE reply SET r_content=?, r_date=NOW() WHERE r_idx=?";
+			pstmt = conn.prepareStatement(query);
+			pstmt.setString(1, changeReply.getContent());
+			pstmt.setString(2, changeReply.getR_idx());		
+			pstmt.executeUpdate();
+			
+		} catch (Exception e) {
+			
+		} finally {
+			try {
+				pstmt.close();
+				conn.close();				
+			}catch(SQLException e) {
+				e.printStackTrace();
+			}
+		}
+	
+}
 }
 
 
