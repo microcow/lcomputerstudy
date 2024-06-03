@@ -126,6 +126,13 @@
    			<!-- 댓글달기를 눌었을 때와 등록버튼을 눌렀을 때 이동되는 script는 다르기때문에 등록하기를 눌렀을 때 reply.r_idx를 따로 저장하지 않으면 불러올 수 없음 -->
       	</td>
 	</tr>
+	<tr style="display: none;">
+      	<td colspan="4">
+   			<button type="button" class="btnDeleteProc" rIdx="${reply.r_idx}">삭제</button> 
+   			<!-- rIdx라는 속성을 직접 만든 후 r_idx값을 저장 -->
+   			<!-- 댓글달기를 눌었을 때와 등록버튼을 눌렀을 때 이동되는 script는 다르기때문에 등록하기를 눌렀을 때 reply.r_idx를 따로 저장하지 않으면 불러올 수 없음 -->
+      	</td>
+	</tr>
  	</c:forEach>
 </table>
 
@@ -230,6 +237,33 @@ $(document).on('click', '.btnChangeProc', function (e) { // 댓글 '수정'버�
 });
 
 
+
+$(document).on('click', '.btnDelete', function(e) { // 댓글의 '삭제하기' 누를 시 여기로
+	e.preventDefault();
+	$(this).parent().parent().parent().parent().next().next().next().css('display', '');   
+});
+
+$(document).on('click', '.btnDeleteProc', function (e) { // '삭제'버튼 누를 시 여기로
+	e.preventDefault();
+
+	let r_idx = $(this).attr('rIdx');
+	var b_idx = ${board2.b_idx};
+	
+	$.ajax({ 
+        url: "creat-reply-delete.do",
+        type: "POST",
+        data: { 
+            r_idx: r_idx,
+            b_idx: b_idx
+        },
+        success: function(res){ 
+            $('#commentList').html(res); 
+        },
+        error: function(){
+            $("#data").text("An error occurred");
+        }
+    });
+});
 
 /*
 

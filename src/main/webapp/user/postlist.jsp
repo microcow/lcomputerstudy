@@ -43,9 +43,25 @@
 		margin:0 5px;
 		border-radius:5px;
 	}
+	textarea {
+            width: 10%;
+            height: 16px; /* 높이를 늘립니다 */
+            font-size: 16px; /* 글자 크기 */
+        }
 </style>
 <body>
 <h1>글 목록</h1>
+<form action="post-search.do" method="get">
+  <label for="lang">검색</label>
+  <select name="search" id="lang">
+  	<option value="select">search</option>
+    <option value="b_title">제목</option>
+    <option value="b_content">내용</option>
+    <option value="b_title AND b_content">제목 + 내용</option>
+  </select>
+  <textarea name="content">검색어를 입력하세요.</textarea>
+  <input type="submit" value="Submit" />
+</form>
 	<table >
 		<tr>
 			<td colspan="5">글 개수 ${pagination.postCount}</td>
@@ -120,5 +136,24 @@
 			</li>  --%>
 		</ul>
 	</div>
+	
+<script>
+        $(document).ready(function() {
+            var textarea = $('#textarea');
+
+            textarea.focus(function() {
+                if ($(this).val() === '검색할 내용을 입력하세요.') {
+                    $(this).val('');
+                }
+            });
+
+            textarea.blur(function() {
+                if ($(this).val() === '') {
+                    $(this).val('검색할 내용을 입력하세요.');
+                }
+            });
+        });
+</script>
+	
 </body>
 </html>

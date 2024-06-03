@@ -567,7 +567,89 @@ public void deletePost(String b_idx){
 			}
 		}
 	
-}
+	}
+	public void deleteReply(Reply changeReply){
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		
+		try {
+			conn = DBConnection.getConnection();
+			String query = "DELETE FROM reply WHERE r_idx=?";
+			pstmt = conn.prepareStatement(query);
+			pstmt.setString(1, changeReply.getR_idx());		
+			pstmt.executeUpdate();
+			
+		} catch (Exception e) {
+			
+		} finally {
+			try {
+				pstmt.close();
+				conn.close();				
+			}catch(SQLException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	public ArrayList<Board> SelectBoard(String search, String content){
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		ArrayList<Board> serchResult = new ArrayList<>();
+		
+		try {
+			conn = DBConnection.getConnection();
+			String query = "SELECT * FROM board WHERE ";
+			
+			if (search.equals("b_title")) {
+				query += "b_title like ?";
+				}
+			else if (search.equals("b_content")) {
+				query += "b_content like ?";
+				}
+			else if (search.equals("b_title AND b_content")) {
+				query += "b_title like ? OR b_content like ?";
+				}
+			else {
+		         throw new IllegalArgumentException("Invalid search condition");
+		      // 예외 처리: 유효하지 않은 검색 조건 (해당 throw가 실행되면 아래 코드는 실행되지 않음(즉시 중지))
+		        }
+			
+			pstmt = conn.prepareStatement(query);
+			
+			if (search.equals("b_title AND b_content")) {
+	            pstmt.setString(1, "\"" + "%" + content + "%" + "\"");
+	            pstmt.setString(2, "\"" + "%" + content + "%" + "\"");
+	        } else {
+	            pstmt.setString(1, "\"" + "%" + content + "%" + "\"");
+	        }
+			
+			rs = pstmt.executeQuery();
+			
+			while(rs.next()){     
+	        	Board board = new Board();
+	        	board.setRownum(rs.getInt("ROWNUM"));
+	        	board.setTitle(rs.getString("b_title"));
+	        	board.setB_idx(rs.getInt("b_idx"));
+	        	board.setWriter(rs.getString("b_writer"));
+	        	board.setDate(rs.getString("b_date"));
+	        	board.setView(rs.getInt("b_view"));
+	        	serchResult.add(board);
+	        }
+				
+		} catch (Exception e) {
+			
+		} finally {
+			try {
+				rs.close();
+				pstmt.close();
+				conn.close();				
+			}catch(SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return serchResult;
+	}
 }
 
 

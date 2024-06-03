@@ -68,4 +68,10 @@ public class BoardService {
 	public void changeReply(Reply changeReply){
 		dao.changeReply(changeReply);
 	}
+	public void deleteReply(Reply changeReply){
+		dao.deleteReply(changeReply);
+	}
+	public ArrayList<Board> SelectBoard(String search, String content){
+		return dao.SelectBoard(search, content);
+	}
 }

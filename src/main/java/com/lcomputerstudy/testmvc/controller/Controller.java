@@ -345,6 +345,20 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 				view = "user/post-reply";
 				break;
 				
+			case "/post-search.do":
+				boardService = BoardService.getInstance();
+				ArrayList<Board> SelectResult = new ArrayList<>();
+				
+				String search = request.getParameter("search");
+				String content = request.getParameter("content");
+				
+				SelectResult = boardService.SelectBoard(search, content);
+				request.setAttribute("postList", SelectResult);
+				
+				view = "user/postlist";
+				
+				break;
+				
 			case "/creat-reply.do": //댓글기능 (아마 ajax기능하면 해당 case를 안쓰게될것)
 				boardService = BoardService.getInstance();
 				String prt = null;
@@ -442,7 +456,26 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 				request.setAttribute("replyList", replyList1); // 댓글 list 전달
 				
 				view = "user/ajax-test";
+				break;
+				
+			case "/creat-reply-delete.do":
+				boardService = BoardService.getInstance();
+				
+				Reply deleteReply = new Reply();
 
+				deleteReply.setR_idx(request.getParameter("r_idx"));
+				boardService.deleteReply(deleteReply);
+				
+				replyList1 = boardService.getReplyList(request.getParameter("b_idx")); // 댓글 list 세팅
+				
+				fstBoard = boardService.getPost(request.getParameter("b_idx")); // 원글 내용 세팅
+				request.setAttribute("board2", fstBoard); 
+				// 댓글 부분만 즉시 갱신되도록 수정하였기에 더이상 원글 내용을 세팅하지 않아도 되지만 user/ajax-test에서 board2.b_idx를 쓰고있기 때문에 일단 전달 
+				
+				request.setAttribute("replyList", replyList1); // 댓글 list 전달
+				
+				view = "user/ajax-test";
+				break;
 				
 
 		}
