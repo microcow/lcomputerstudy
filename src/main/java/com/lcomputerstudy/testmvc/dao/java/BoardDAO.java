@@ -224,7 +224,7 @@ public ArrayList<Board> getPostList(int page) {
 			conn = DBConnection.getConnection();
 			String query = new StringBuilder()
 
-					.append("SELECT 		@ROWNUM := @ROWNUM + 1 AS ROWNUM,\n")
+					.append("SELECT 		@ROWNUM := @ROWNUM + 1 AS ROWNUM,\n") // := 할당연산자
 					.append("				ta.*\n")
 					.append("FROM 			board as ta,\n")
 					.append("				(SELECT @ROWNUM := 0) as tb\n")
@@ -591,7 +591,7 @@ public void deletePost(String b_idx){
 		}
 	}
 	
-	public ArrayList<Board> SelectBoard(String search, String content){
+	public ArrayList<Board> SelectBoard(String search, String content){ // 게시글 검색 기능
 		Connection conn = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
@@ -607,28 +607,29 @@ public void deletePost(String b_idx){
 			else if (search.equals("b_content")) {
 				query += "b_content like ?";
 				}
-			else if (search.equals("b_title AND b_content")) {
+			else if (search.equals("b_title AND b_content")) { //제목 + 내용으로 찾을 경우 
 				query += "b_title like ? OR b_content like ?";
 				}
-			else {
-		         throw new IllegalArgumentException("Invalid search condition");
-		      // 예외 처리: 유효하지 않은 검색 조건 (해당 throw가 실행되면 아래 코드는 실행되지 않음(즉시 중지))
-		        }
+			else if (search.equals("b_writer")) {
+				query += "b_writer like ?";
+				}
 			
 			pstmt = conn.prepareStatement(query);
 			
+			String Search = "%" + content + "%";
+			
 			if (search.equals("b_title AND b_content")) {
-	            pstmt.setString(1, "\"" + "%" + content + "%" + "\"");
-	            pstmt.setString(2, "\"" + "%" + content + "%" + "\"");
+	            pstmt.setString(1, Search);
+	            pstmt.setString(2, Search);
 	        } else {
-	            pstmt.setString(1, "\"" + "%" + content + "%" + "\"");
+	            pstmt.setString(1, Search);
 	        }
 			
 			rs = pstmt.executeQuery();
 			
-			while(rs.next()){     
+			while(rs.next()){  
 	        	Board board = new Board();
-	        	board.setRownum(rs.getInt("ROWNUM"));
+	        	//board.setRownum(rs.getInt("ROWNUM"));
 	        	board.setTitle(rs.getString("b_title"));
 	        	board.setB_idx(rs.getInt("b_idx"));
 	        	board.setWriter(rs.getString("b_writer"));
@@ -638,12 +639,14 @@ public void deletePost(String b_idx){
 	        }
 				
 		} catch (Exception e) {
+			e.printStackTrace();
+			
 			
 		} finally {
 			try {
-				rs.close();
-				pstmt.close();
-				conn.close();				
+				  if (rs != null) rs.close(); // null 체크를 하지 않을경우 찾는 내용이 db에 없을 때 NullPointerException 발생
+		          if (pstmt != null) pstmt.close();
+		          if (conn != null) conn.close();
 			}catch(SQLException e) {
 				e.printStackTrace();
 			}

@@ -58,6 +58,7 @@
     <option value="b_title">제목</option>
     <option value="b_content">내용</option>
     <option value="b_title AND b_content">제목 + 내용</option>
+    <option value="b_writer">작성자</option>
   </select>
   <textarea name="content">검색어를 입력하세요.</textarea>
   <input type="submit" value="Submit" />

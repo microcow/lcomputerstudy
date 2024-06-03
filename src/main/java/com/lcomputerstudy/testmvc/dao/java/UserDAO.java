@@ -235,7 +235,6 @@ public class UserDAO {
 		
 		try {
 			conn = DBConnection.getConnection();
-			//String query = "select * from user limit ?,3";
 			String query = new StringBuilder()
 					// StringBuilder클래스의 .append메서드는 문자열을 서로 연결해주는 메서드이다
 					// .toString으로 문자열을 모두 연결하지 않으면 String에 담을 수 없다
