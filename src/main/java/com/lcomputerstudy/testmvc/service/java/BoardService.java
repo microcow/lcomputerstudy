@@ -71,7 +71,7 @@ public class BoardService {
 	public void deleteReply(Reply changeReply){
 		dao.deleteReply(changeReply);
 	}
-	public ArrayList<Board> SelectBoard(String search, String content){
-		return dao.SelectBoard(search, content);
+	public ArrayList<Board> SelectBoard(String search, String content, int page){
+		return dao.SelectBoard(search, content, page);
 	}
 }

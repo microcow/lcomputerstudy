@@ -51,7 +51,7 @@
 </style>
 <body>
 <h1>글 목록</h1>
-<form action="post-search.do" method="get">
+<form action="create.list.do" method="get">
   <label for="lang">검색</label>
   <select name="search" id="lang">
   	<option value="select">search</option>
@@ -60,7 +60,9 @@
     <option value="b_title AND b_content">제목 + 내용</option>
     <option value="b_writer">작성자</option>
   </select>
-  <textarea name="content">검색어를 입력하세요.</textarea>
+  <input type="text" name="content" placeholder="검색어를 입력하세요.">
+  <!-- placeholder 텍스트 박스에 연하게 노출되는 글씨이며, 텍스트 박스에 글 작성 시 사라진다 -->
+  <input type="hidden" name="page" value=1> <!-- 검색 시 항상 1페이지 노출이니까 value를 1로 넘겨봄 -->
   <input type="submit" value="Submit" />
 </form>
 	<table >
@@ -73,11 +75,12 @@
 			<th>작성날짜</th>
 			<th>조회수</th>
 		</tr>
+		
 		<c:forEach items="${postList}" var="item2" varStatus="status"> <!-- varStatus는 딱히 신경x -->
 			 <tr>
 				<td>${item2.rownum}</td>
 				<td>${item2.writer}</td>
-				<td><a href="post-detail.do?b_idx=${item2.b_idx}">${item2.title}</a></td>
+				<td><a href="post-detail.do?b_idx=${item2.b_idx}&page=${pagination.page}">${item2.title}</a></td>
 				<td>${item2.date}</td>
 				<td>${item2.view}</td>
 		     <tr>
@@ -96,7 +99,7 @@
 				<c:when test="${ pagination.prevPage ge 5}">
 				<!-- ge : 이전 페이지가 5 이상인가?"를 묻습니다. 이전 페이지가 5 이상이면 조건은 참(true)이고, 그렇지 않으면 거짓(false) -->
 					<li>
-						<a href="create.list.do?page=${pagination.prevPage}">
+						<a href="create.list.do?search=${search.search}&content=${search.content}&page=${pagination.prevPage}">
 							◀
 						</a>
 					</li>
@@ -115,7 +118,7 @@
 						<c:when test="${ pagination.page ne i }">
 						<!-- ne : 현재 페이지가 i와 같지 않은지"를 묻습니다. 현재 페이지가 i와 같지 않으면 조건은 참(true)이고, 그렇지 않으면 거짓(false) -->
 							<li>
-								<a href="create.list.do?page=${i}">${i}</a>
+								<a href="create.list.do?search=${search.search}&content=${search.content}&page=${i}">${i}</a>
 							</li>
 						</c:when>
 					</c:choose>
@@ -123,12 +126,13 @@
 			 <c:choose>
 				<c:when test="${ pagination.nextPage lt pagination.lastPage }">
 					<li style="">
-						<a href="create.list.do?page=${pagination.nextPage}">▶</a>
+						<a href="create.list.do?search=${search.search}&content=${search.content}&page=${pagination.nextPage}">▶</a>
+						<!-- <a href="search=${search.search}&content=${search.content}">▶</a> -->
 					</li>
 				</c:when>
 				<c:when test="${ pagination.nextPage ge pagination.lastPage}">
 					<li style="display:none;">
-						<a href="create.list.do?page=${pagination.nextPage}">▶</a>
+						<a href="create.list.do?search=${search.search}&content=${search.content}&page=${pagination.nextPage}">▶</a>
 					</li>
 				</c:when>
 			</c:choose> 
@@ -137,24 +141,5 @@
 			</li>  --%>
 		</ul>
 	</div>
-	
-<script>
-        $(document).ready(function() {
-            var textarea = $('#textarea');
-
-            textarea.focus(function() {
-                if ($(this).val() === '검색할 내용을 입력하세요.') {
-                    $(this).val('');
-                }
-            });
-
-            textarea.blur(function() {
-                if ($(this).val() === '') {
-                    $(this).val('검색할 내용을 입력하세요.');
-                }
-            });
-        });
-</script>
-	
 </body>
 </html>

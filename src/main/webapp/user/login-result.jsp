@@ -55,7 +55,7 @@ ${sessionScope.user.u_name }님
 		<li><a href="user-list.do">회원 목록</a></li>
 		<li><a href="logout.do">로그아웃</a></li>
 		<li><a href="create.do">글 작성</a></li>
-		<li><a href="create.list.do">글 목록</a></li>
+		<li><a href="create.list.do?search=${search.search}&content=${search.content}&page=1">글 목록</a></li>
 	</ul>
 </div>
 </body>

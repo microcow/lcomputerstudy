@@ -591,7 +591,7 @@ public void deletePost(String b_idx){
 		}
 	}
 	
-	public ArrayList<Board> SelectBoard(String search, String content){ // 게시글 검색 기능
+	public ArrayList<Board> SelectBoard(String search, String content, int page){ // 게시글 검색 기능
 		Connection conn = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
@@ -599,7 +599,49 @@ public void deletePost(String b_idx){
 		
 		try {
 			conn = DBConnection.getConnection();
-			String query = "SELECT * FROM board WHERE ";
+			
+			   String setRowNum = "SET @ROWNUM := (SELECT COUNT(*) - ? + 1 FROM board)";
+		        pstmt = conn.prepareStatement(setRowNum);
+		        pstmt.setInt(1, page);
+		        pstmt.executeUpdate();
+		        pstmt.close();
+
+		        StringBuffer StringBuffer = new StringBuffer()
+		            .append("SELECT @ROWNUM := @ROWNUM - 1 AS ROWNUM,\n")
+		            .append(" brd.*\n")
+		            .append("FROM board as brd\n")
+		            .append("WHERE ");
+
+		        if (search.equals("b_title")) {
+		        	StringBuffer.append("b_title like ?");
+		        } else if (search.equals("b_content")) {
+		        	StringBuffer.append("b_content like ?");
+		        } else if (search.equals("b_title AND b_content")) { // 제목 + 내용으로 찾을 경우 
+		        	StringBuffer.append("b_title like ? OR b_content like ?");
+		        } else if (search.equals("b_writer")) {
+		        	StringBuffer.append("b_writer like ?");
+		        }
+		        
+		        StringBuffer.append("ORDER BY brd.p_post desc, brd.grpord ASC\n");
+		        StringBuffer.append(" LIMIT ?, 3");
+
+		        String query = StringBuffer.toString();
+		        pstmt = conn.prepareStatement(query);
+		        
+		        String Search = "%" + content + "%";
+		        
+		        if(search.equals("b_title AND b_content")){
+		        	pstmt.setString(1, Search);
+		        	pstmt.setString(2, Search);
+		        	pstmt.setInt(3, (page - 1) * 3);
+		        }
+		        else {
+		        	pstmt.setString(1, Search);
+		        	pstmt.setInt(2, (page - 1) * 3);
+		        }
+			
+						
+			/*String query = "SELECT * FROM board WHERE ";
 			
 			if (search.equals("b_title")) {
 				query += "b_title like ?";
@@ -612,7 +654,7 @@ public void deletePost(String b_idx){
 				}
 			else if (search.equals("b_writer")) {
 				query += "b_writer like ?";
-				}
+				} 
 			
 			pstmt = conn.prepareStatement(query);
 			
@@ -623,13 +665,13 @@ public void deletePost(String b_idx){
 	            pstmt.setString(2, Search);
 	        } else {
 	            pstmt.setString(1, Search);
-	        }
+	        }*/
 			
 			rs = pstmt.executeQuery();
 			
 			while(rs.next()){  
 	        	Board board = new Board();
-	        	//board.setRownum(rs.getInt("ROWNUM"));
+	        	board.setRownum(rs.getInt("ROWNUM"));
 	        	board.setTitle(rs.getString("b_title"));
 	        	board.setB_idx(rs.getInt("b_idx"));
 	        	board.setWriter(rs.getString("b_writer"));

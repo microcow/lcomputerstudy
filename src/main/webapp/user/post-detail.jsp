@@ -82,7 +82,8 @@
 	</tr>
 </table>
 
-<form action="create.list.do" method="post">
+<form action="create.list.do?search=${search.search}&content=${search.content}&page=${page}" method="post">
+	<!-- 만약 돌아가기를 눌렀을 때 1페이지가 아닌 해당 글이 있던 페이지로 돌아가게 했음  -->
 	<input type="hidden" name="b_idx" value="${board2.b_idx}">
 	<p> <input type="submit" value="돌아가기"></p>
 </form>

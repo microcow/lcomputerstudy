@@ -15,6 +15,7 @@ import com.lcomputerstudy.testmvc.service.java.UserService;
 import com.lcomputerstudy.testmvc.vo.java.Board;
 import com.lcomputerstudy.testmvc.vo.java.Pagination;
 import com.lcomputerstudy.testmvc.vo.java.Reply;
+import com.lcomputerstudy.testmvc.vo.java.Search;
 import com.lcomputerstudy.testmvc.vo.java.User;
 
 @WebServlet("*.do") 
@@ -239,7 +240,10 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 						
 				view = "user/login-result";				
 				break;
-				
+	
+//// board의 pagenation 정상적으로 동작하게 바꾸기 (글 3개만 출력되고, no도 잘나오고, 페이지 개수도 더이상 없으면 출력되지 않게)
+//// https://makecodework.tistory.com/entry/JSP-cosjar-%EB%A5%BC-%EC%9D%B4%EC%9A%A9%ED%95%98%EC%97%AC-eclipse-%EC%97%90%EC%84%9C-%ED%8C%8C%EC%9D%BC-%EC%97%85%EB%A1%9C%EB%93%9C-%EA%B8%B0%EB%8A%A5-%EA%B5%AC%ED%98%84%ED%95%98%EA%B8%B0
+//// https://velog.io/@aayunaa/%EC%8B%A4%EC%8A%B5%EC%A0%95%EB%A6%AC-cos.jar%ED%8C%8C%EC%9D%BC%EC%97%85%EB%A1%9C%EB%93%9C-%EB%A7%8C%EB%93%A4%EA%B8%B0-2	
 			case "/create.list.do":	
 				String reqPage2 = request.getParameter("page");
 				if (reqPage2 != null)
@@ -247,6 +251,27 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 				else page2 = 1;
 				
 				boardService = BoardService.getInstance();
+				
+				if(request.getParameter("search") != "") { // 검색내용이 있을 경우 해당 코드 실행
+					// 검색을 하지 않는 경우는 search라는 매개변수를 계속 전달받고 있으나 내용이 없으므로 null이 아닌 빈문자열
+					ArrayList<Board> SelectResult = new ArrayList<>();
+										
+					pagination = new Pagination(page2);
+					
+					Search search = new Search();
+					search.setSearch(request.getParameter("search"));
+					search.setContent(request.getParameter("content"));
+					
+					SelectResult = boardService.SelectBoard(search.getSearch(), search.getContent(), page2);
+					request.setAttribute("postList", SelectResult);
+					request.setAttribute("pagination", pagination);
+					request.setAttribute("search", search);
+					
+					view = "user/postlist";
+					break;
+				}
+				
+				else { // 검색내용이 없을 경우 해당 코드 실행
 				ArrayList<Board> postList = boardService.getPostList(page2);
 				pagination = new Pagination(page2);
 				
@@ -255,6 +280,7 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 							
 				view = "user/postlist";
 				break;
+				}
 			
 			case "/post-detail.do":
 				ArrayList<Reply> replyList1 = null;
@@ -264,6 +290,8 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 				boardService.updateView(request.getParameter("b_idx")); // 조회수 증가
 				board2 = boardService.getPost(request.getParameter("b_idx")); // board2의 값 세팅
 				replyList1 = boardService.getReplyList(request.getParameter("b_idx")); // 해당 글 댓글 목록 저장
+				page = Integer.parseInt(request.getParameter("page")); // 글이 있던 페이지
+				request.setAttribute("page", page);
 				request.setAttribute("board2", board2);
 				request.setAttribute("replyList", replyList1);
 				// getPost메소드를 통해 board2에 세터로 셋팅된 값만 jsp에 전달됨 (즉, 셋팅된 값만 post-detail jsp에서 사용 가능)
@@ -345,18 +373,27 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 				view = "user/post-reply";
 				break;
 				
-			case "/post-search.do":
+			case "/post-search.do": // 게시글 검색 시 실행되는 case (해당 내용 create-list로 합쳐져서 현재는 안쓰이는 case)
 				boardService = BoardService.getInstance();
 				ArrayList<Board> SelectResult = new ArrayList<>();
 				
-				String search = request.getParameter("search");
-				String content = request.getParameter("content");
+				String rePage = request.getParameter("page");
+				if (rePage != null)
+					page = Integer.parseInt(rePage);
+				else page = 1;
 				
-				SelectResult = boardService.SelectBoard(search, content);
+				pagination = new Pagination(page);
+				
+				Search search = new Search();
+				search.setSearch(request.getParameter("search"));
+				search.setContent(request.getParameter("content"));
+				
+				SelectResult = boardService.SelectBoard(search.getSearch(), search.getContent(), page);
 				request.setAttribute("postList", SelectResult);
+				request.setAttribute("pagination", pagination);
+				request.setAttribute("search", search);
 				
 				view = "user/postlist";
-				
 				break;
 				
 			case "/creat-reply.do": //댓글기능 (아마 ajax기능하면 해당 case를 안쓰게될것)
