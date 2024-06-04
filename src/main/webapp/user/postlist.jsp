@@ -105,8 +105,8 @@
 					</li>
 				</c:when>
 			</c:choose> 
-			<c:forEach var="i" begin="${pagination.startPage}" end="${pagination.endPage}" step="1">
-				
+			<c:forEach var="i" begin="${pagination.startPage}" end="${pagination.postEndPage}" step="1">
+			
 					<c:choose>
 						<c:when test="${ pagination.page eq i }">
 						<!-- eq : 현재 페이지가 i와 같은지"를 묻습니다. 현재 페이지가 i와 같으면 조건은 참(true)이고, 그렇지 않으면 거짓(false) -->
@@ -124,21 +124,18 @@
 					</c:choose>
 			</c:forEach>
 			 <c:choose>
-				<c:when test="${ pagination.nextPage lt pagination.lastPage }">
+				<c:when test="${ pagination.nextPage lt pagination.postlastPage }">
 					<li style="">
 						<a href="create.list.do?search=${search.search}&content=${search.content}&page=${pagination.nextPage}">▶</a>
 						<!-- <a href="search=${search.search}&content=${search.content}">▶</a> -->
 					</li>
 				</c:when>
-				<c:when test="${ pagination.nextPage ge pagination.lastPage}">
+				<c:when test="${ pagination.nextPage ge pagination.postlastPage}">
 					<li style="display:none;">
 						<a href="create.list.do?search=${search.search}&content=${search.content}&page=${pagination.nextPage}">▶</a>
 					</li>
 				</c:when>
 			</c:choose> 
-			<%--  <li>
-				<a href="user-list.do?page=${pagination.nextPage}">▶</a>
-			</li>  --%>
 		</ul>
 	</div>
 </body>

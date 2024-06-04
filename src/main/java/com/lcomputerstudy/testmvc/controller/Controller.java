@@ -241,7 +241,6 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 				view = "user/login-result";				
 				break;
 	
-//// board의 pagenation 정상적으로 동작하게 바꾸기 (글 3개만 출력되고, no도 잘나오고, 페이지 개수도 더이상 없으면 출력되지 않게)
 //// https://makecodework.tistory.com/entry/JSP-cosjar-%EB%A5%BC-%EC%9D%B4%EC%9A%A9%ED%95%98%EC%97%AC-eclipse-%EC%97%90%EC%84%9C-%ED%8C%8C%EC%9D%BC-%EC%97%85%EB%A1%9C%EB%93%9C-%EA%B8%B0%EB%8A%A5-%EA%B5%AC%ED%98%84%ED%95%98%EA%B8%B0
 //// https://velog.io/@aayunaa/%EC%8B%A4%EC%8A%B5%EC%A0%95%EB%A6%AC-cos.jar%ED%8C%8C%EC%9D%BC%EC%97%85%EB%A1%9C%EB%93%9C-%EB%A7%8C%EB%93%A4%EA%B8%B0-2	
 			case "/create.list.do":	

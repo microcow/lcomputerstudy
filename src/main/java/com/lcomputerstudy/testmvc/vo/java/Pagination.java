@@ -10,8 +10,10 @@ public class Pagination {
 	int startPage;     //﻿ pagination의 시작(ex,1,6,11)
 	int endPage;      // ﻿pagination의 끝(ex,5,10,15)
 	int lastPage;     // (userCount/화면에 표시할 갯수), pagination 마지막 번호
+	int postlastPage; // board의 lastPage
 	int prevPage;     // pagination의 이전 목록
 	int nextPage;     // pagination의 다음 목록
+	int postEndPage;
 	public static final int pageUnit=5;  // 한번에 불러 올 pagination 수
 	public static final int perPage=3;   // 한번에 불러 올 userCount 수
 	UserService userService = null;
@@ -29,11 +31,28 @@ public class Pagination {
 		startPage =((page-1)/pageUnit)*pageUnit+1;
 		lastPage = (int)Math.ceil(userCount / (float)perPage);
 		// Math.ceil : 올림
+		postlastPage = (int)Math.ceil(postCount / (float)perPage);
 		endPage = startPage+pageUnit-1;
 		endPage = endPage < lastPage ? endPage : lastPage;
+		postEndPage = startPage+pageUnit-1;
+		postEndPage = postEndPage < postlastPage ? postEndPage : postlastPage;
 		prevPage=(endPage-pageUnit);
 		nextPage=(startPage+pageUnit);
 		
+	}
+	
+	
+	public int getPostEndPage() {
+		return postEndPage;
+	}
+	public void setPostEndPage(int postEndPage) {
+		this.postEndPage = postEndPage;
+	}
+	public int getPostlastPage() {
+		return postlastPage;
+	}
+	public void setPostlastPage(int postlastPage) {
+		this.postlastPage = postlastPage;
 	}
 	public int getPostCount() {
 		return postCount;

@@ -596,13 +596,14 @@ public void deletePost(String b_idx){
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
 		ArrayList<Board> serchResult = new ArrayList<>();
+		int pageNum = (page-1)*3;
 		
 		try {
 			conn = DBConnection.getConnection();
 			
 			   String setRowNum = "SET @ROWNUM := (SELECT COUNT(*) - ? + 1 FROM board)";
 		        pstmt = conn.prepareStatement(setRowNum);
-		        pstmt.setInt(1, page);
+		        pstmt.setInt(1, pageNum);
 		        pstmt.executeUpdate();
 		        pstmt.close();
 
@@ -612,13 +613,13 @@ public void deletePost(String b_idx){
 		            .append("FROM board as brd\n")
 		            .append("WHERE ");
 
-		        if (search.equals("b_title")) {
+		        if (search.equals("b_title")) { // 제목으로 검색하는 경우
 		        	StringBuffer.append("b_title like ?");
-		        } else if (search.equals("b_content")) {
+		        } else if (search.equals("b_content")) { // 내용으로 검색하는 경우
 		        	StringBuffer.append("b_content like ?");
-		        } else if (search.equals("b_title AND b_content")) { // 제목 + 내용으로 찾을 경우 
+		        } else if (search.equals("b_title AND b_content")) { // 제목 + 내용으로 검색하는 경우 
 		        	StringBuffer.append("b_title like ? OR b_content like ?");
-		        } else if (search.equals("b_writer")) {
+		        } else if (search.equals("b_writer")) { // 작성자명으로 검색하는 경우
 		        	StringBuffer.append("b_writer like ?");
 		        }
 		        
@@ -633,11 +634,11 @@ public void deletePost(String b_idx){
 		        if(search.equals("b_title AND b_content")){
 		        	pstmt.setString(1, Search);
 		        	pstmt.setString(2, Search);
-		        	pstmt.setInt(3, (page - 1) * 3);
+		        	pstmt.setInt(3, pageNum);
 		        }
 		        else {
 		        	pstmt.setString(1, Search);
-		        	pstmt.setInt(2, (page - 1) * 3);
+		        	pstmt.setInt(2, pageNum);
 		        }
 			
 						
