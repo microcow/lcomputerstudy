@@ -48,6 +48,11 @@
 			<td>${board2.content}</td>
 		</tr>
 	</table>
+	
+	
+	<img src="${upload.directory }" alt="Uploaded Image"> <p>
+	
+	
 
 	<input type="hidden" name="b_idx" value="${board2.b_idx}">
 	<input type="hidden" name="u_idx" value="${board2.u_idx}">

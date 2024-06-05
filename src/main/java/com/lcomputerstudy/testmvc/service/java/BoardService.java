@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import com.lcomputerstudy.testmvc.dao.java.BoardDAO;
 import com.lcomputerstudy.testmvc.vo.java.Board;
 import com.lcomputerstudy.testmvc.vo.java.Reply;
+import com.lcomputerstudy.testmvc.vo.java.Upload;
 import com.lcomputerstudy.testmvc.vo.java.User;
 
 public class BoardService {
@@ -22,8 +23,8 @@ public class BoardService {
 		return service;
 	
 	}
-	public void insertBoard(Board board) {
-		dao.insertBoard(board);
+	public int insertBoard(Board board) {
+		return dao.insertBoard(board);
 	}
 	public ArrayList<Board> getPostList(int page) {
 		return dao.getPostList(page);
@@ -73,5 +74,11 @@ public class BoardService {
 	}
 	public ArrayList<Board> SelectBoard(String search, String content, int page){
 		return dao.SelectBoard(search, content, page);
+	}
+	public void insertFile(Upload file){
+		dao.insertFile(file);
+	}
+	public Upload getUploadFile(String b_idx) {
+		return dao.getUploadFile(b_idx);
 	}
 }

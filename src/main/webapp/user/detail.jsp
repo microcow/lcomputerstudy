@@ -43,6 +43,7 @@
 				<td>${user2.u_name}</td>
 			</tr>			
 	</table>
+
 	
 	<input type="hidden" name="u_idx" value="${user2.u_idx}"> <!-- 히든 인풋으로 user-delete.do에 u_idx값 전달 (없으면 null값이 전달됨)-->
 	<!-- hidden input 필드를 사용하는 이유는, 사용자에게 보이지 않으면서도 폼 데이터를 전송하기 위함입니다.

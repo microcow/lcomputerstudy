@@ -1,5 +1,6 @@
 package com.lcomputerstudy.testmvc.controller;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import javax.servlet.RequestDispatcher;
@@ -9,6 +10,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import com.oreilly.servlet.MultipartRequest;
+import com.oreilly.servlet.multipart.DefaultFileRenamePolicy;
 
 import com.lcomputerstudy.testmvc.service.java.BoardService;
 import com.lcomputerstudy.testmvc.service.java.UserService;
@@ -16,6 +19,7 @@ import com.lcomputerstudy.testmvc.vo.java.Board;
 import com.lcomputerstudy.testmvc.vo.java.Pagination;
 import com.lcomputerstudy.testmvc.vo.java.Reply;
 import com.lcomputerstudy.testmvc.vo.java.Search;
+import com.lcomputerstudy.testmvc.vo.java.Upload;
 import com.lcomputerstudy.testmvc.vo.java.User;
 
 @WebServlet("*.do") 
@@ -184,7 +188,8 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 				예를 들어, 사용자가 로그인한 후 다른 페이지로 이동할 때도 세션을 통해 로그인 상태를 확인할 수 있습니다.
 				request.setAttribute와 동일하게 동작함 즉, jsp로 넘어가더라도 user라는 이름으로 사용 가능 */
 				// request.getSession()로 세션을 생성하고 setAttribute로 생성한 세션을 저장 
-
+		    
+				
 				view = "user/login-result";
 			} else {
 				view = "user/login-fail";
@@ -211,38 +216,87 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 				break;
 				
 			case "/create.process.do": // 최초 작성, 답글 작성 모두 글 작성 시 create.process.do로 오게 되어있음
-				Board board = new Board();
 				BoardService boardService = BoardService.getInstance();
-				board.setTitle(request.getParameter("title"));
-				board.setContent(request.getParameter("content"));
-				board.setWriter(request.getParameter("writer"));
-				board.setIdx(Integer.parseInt(request.getParameter("idx")));
-				if (request.getParameter("p_post") != null) { // 답글일 경우, p_post를 부모 b_idx값으로 셋팅
-					board.setP_post(Integer.parseInt(request.getParameter("p_post")));
+				
+				/// https://zrr.kr/NtP9 (cos.jar를 이용하여 파일 업로드 기능 구현 참고 블로그)
+				
+				String directory = "C:/Users/L7A/Desktop/";
+		        int sizeLimit = 100 * 1024 * 1024; // 100MB 제한
+
+		        // MultipartRequest 객체 생성
+		        MultipartRequest multi = new MultipartRequest(request,
+		                                                      directory,
+		                                                      sizeLimit,
+		                                                      "UTF-8",
+		                                                      new DefaultFileRenamePolicy());
+		        											// 순서 다르면 오류발생
+
+		        // 업로드된 파일 정보 추출
+		        String fileName = multi.getFilesystemName("file");
+		        String originalFileName = multi.getOriginalFileName("file");
+		        String fileType = multi.getContentType("file");
+		        File file = multi.getFile("file");
+		        
+		        // 파일 정보 저장
+		        Upload upload = new Upload();
+		        upload.setDirectory(directory + fileName);
+		        upload.setFileName(fileName);
+		        upload.setOriginalFileName(originalFileName);
+		        upload.setFileType(fileType);
+		        upload.setFile(file);
+		        // upload.setB_idx() 는 맨 아래에서 실행. 글이 insert되어야 b_idx값이 생성되기 때문.
+		        
+		        // 파일이 정상적으로 업로드되었는지 확인
+		        if (file != null) {
+		            System.out.println("파일이 업로드되었습니다.");
+		            System.out.println("파일 이름: " + fileName);
+		            System.out.println("원본 파일 이름: " + originalFileName);
+		            System.out.println("파일 타입: " + fileType);
+		            System.out.println("파일 크기: " + file.length() + " bytes");
+		        } else {
+		            System.out.println("파일 업로드에 실패하였습니다.");
+		        }
+		        
+		       
+				
+				
+				Board board = new Board();
+				board.setTitle(multi.getParameter("title"));
+				board.setContent(multi.getParameter("content"));
+				board.setWriter(multi.getParameter("writer"));
+				board.setIdx(Integer.parseInt(multi.getParameter("idx")));
+				if (multi.getParameter("p_post") != null) { // 답글일 경우, p_post를 부모 b_idx값으로 셋팅
+					board.setP_post(Integer.parseInt(multi.getParameter("p_post")));
 				}				
-				if (request.getParameter("p_post") != null) { // 답글일 경우, 동일 p_post값을 가진 행들 중 원글의 grpord보다 큰애들은 grpord +1로 바꾸는 메소드 실행하고 그 후에 나의 grpord 값은 원글의grpord+1 (이러면 최신글일수록 부모글 바로 아래에 올 수 있음)
+				if (multi.getParameter("p_post") != null) { // 답글일 경우, 동일 p_post값을 가진 행들 중 원글의 grpord보다 큰애들은 grpord +1로 바꾸는 메소드 실행하고 그 후에 나의 grpord 값은 원글의grpord+1 (이러면 최신글일수록 부모글 바로 아래에 올 수 있음)
 					boardService
-						.setReplyGrpord(Integer.parseInt(request.getParameter("p_post")),
-										Integer.parseInt(request.getParameter("grpord")));
-					board.setGrpord(Integer.parseInt(request.getParameter("grpord"))+1); // 답글일 경우에 부모 grport값 +1
+						.setReplyGrpord(Integer.parseInt(multi.getParameter("p_post")),
+										Integer.parseInt(multi.getParameter("grpord")));
+					board.setGrpord(Integer.parseInt(multi.getParameter("grpord"))+1); // 답글일 경우에 부모 grport값 +1
 				}
 				else {
 					// boardService.setGrpord(); 안쓰는 메소드 (시행착오)
 					board.setGrpord(0); // 원글일 경우 본인의 값은 0으로 셋팅
 				}
-				if (request.getParameter("p_posttitle") != null) { // 작성 글이 답글일 경우 p_posttitle 값 세팅
-					board.setP_posttitle(request.getParameter("p_posttitle"));
+				if (multi.getParameter("p_posttitle") != null) { // 작성 글이 답글일 경우 p_posttitle 값 세팅
+					board.setP_posttitle(multi.getParameter("p_posttitle"));
 				}				
-				board.setDepth(Integer.parseInt(request.getParameter("depth"))+1); // depth의 default값 1로 설정, 답글일 경우 부모의 depth값+1			
+				board.setDepth(Integer.parseInt(multi.getParameter("depth"))+1); // depth의 default값 1로 설정, 답글일 경우 부모의 depth값+1			
 
-				boardService.insertBoard(board); // 글 db에 저장 (+ 저장되는 글이 원글일 경우 p_post값 세팅)
+				/* ★★ request.getParameter 대신 multi.getParameter를 사용하는 이유는 폼이 파일 업로드를 포함하고 있기 때문이다. 일반적인 HTML 폼과 달리,
+				 파일 업로드 폼은 enctype="multipart/form-data" 속성을 사용하여 데이터를 전송합니다. 이 경우, request.getParameter는 텍스트 필드의 값을 제대로 처리할 수 없습니다. 
+				 따라서, cos 라이브러리에서 제공하는 MultipartRequest 객체를 사용하여 폼 데이터를 처리해야 한다. */
+				
+				int lastInsertb_idx = boardService.insertBoard(board); // 글 db에 저장 (+ 저장되는 글이 원글일 경우 p_post값 세팅)
 				// boardService.setp_post(); // 생성되는 글이 원글일 경우(p_post값이 0일경우) p_post값 세팅(자신의 b_idx값으로) // 해당 과정을 insertBoard 메서드에서 처리하도록 수정하였기에 안쓰임
-						
+				
+				upload.setB_idx(lastInsertb_idx); // 글이 insert되고 b_idx가 생겼으므로 첨부파일 b_idx 세팅
+				boardService.insertFile(upload); // 파일정보 DB에 저장	
+				
 				view = "user/login-result";				
 				break;
-	
-//// https://makecodework.tistory.com/entry/JSP-cosjar-%EB%A5%BC-%EC%9D%B4%EC%9A%A9%ED%95%98%EC%97%AC-eclipse-%EC%97%90%EC%84%9C-%ED%8C%8C%EC%9D%BC-%EC%97%85%EB%A1%9C%EB%93%9C-%EA%B8%B0%EB%8A%A5-%EA%B5%AC%ED%98%84%ED%95%98%EA%B8%B0
-//// https://velog.io/@aayunaa/%EC%8B%A4%EC%8A%B5%EC%A0%95%EB%A6%AC-cos.jar%ED%8C%8C%EC%9D%BC%EC%97%85%EB%A1%9C%EB%93%9C-%EB%A7%8C%EB%93%A4%EA%B8%B0-2	
+				
+
 			case "/create.list.do":	
 				String reqPage2 = request.getParameter("page");
 				if (reqPage2 != null)
@@ -294,6 +348,12 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 				request.setAttribute("board2", board2);
 				request.setAttribute("replyList", replyList1);
 				// getPost메소드를 통해 board2에 세터로 셋팅된 값만 jsp에 전달됨 (즉, 셋팅된 값만 post-detail jsp에서 사용 가능)
+				
+				upload = boardService.getUploadFile(request.getParameter("b_idx")); // 게시글에 첨부된 이미지 가져오기
+				request.setAttribute("upload", upload);
+				//// 지금 이미지 업로드 후 db에 저장도 잘되고 jsp에서 이미지 주소도 불러와지는데 이미지 출력이 되지 않고 있음.
+				//// 첨부파일이 경로(내컴퓨터 로컬주소)로 저장되고 있는데 이걸 서버로 저장하고 서버에서 불러와야지 이미지를 출력할 수 있을 걱 같음 
+				//// https://blog.naver.com/heartflow89/221009083830 참고블로그
 				
 				view = "user/post-detail";
 				break;
@@ -369,6 +429,8 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 				request.setAttribute("replyUser", replyUser);
 				request.setAttribute("p_post", p_post);
 							
+				
+				
 				view = "user/post-reply";
 				break;
 				

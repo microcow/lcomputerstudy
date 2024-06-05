@@ -11,6 +11,7 @@ import com.lcomputerstudy.testmvc.database.java.DBConnection;
 import com.lcomputerstudy.testmvc.vo.java.Board;
 import com.lcomputerstudy.testmvc.vo.java.Pagination;
 import com.lcomputerstudy.testmvc.vo.java.Reply;
+import com.lcomputerstudy.testmvc.vo.java.Upload;
 
 public class BoardDAO {
 	public static BoardDAO dao = null;
@@ -51,7 +52,7 @@ public class BoardDAO {
 		return count;
 	}
 	
-	public void insertBoard(Board board) {
+	public int insertBoard(Board board) {
 		Connection conn = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
@@ -87,7 +88,7 @@ public class BoardDAO {
 			
 			if (rs.next()) {
 				p_post = (int)rs.getLong(1); // getLong(1)은 결과 집합(Result Set)의 첫 번째 열(column)의 값을 long타입으로 가져온다.
-			}
+			}	// p_post라는 인스턴스에 가장 최근에 성공적으로 수행된 AUTO_INCREMENT 타입 컬럼(b_idx) 저장
 				pstmt.close();
 				
 			// 자신(b_idx)의 p_post 값이 0일 경우(원글일 경우) p_post값을 자신의 b_idx값으로 세팅
@@ -110,7 +111,7 @@ public class BoardDAO {
 				e.printStackTrace();
 			}
 		}
-		
+		return p_post;
 	}
 
 	
@@ -303,7 +304,43 @@ public Board getPost(String b_idx) { // 상세 글 가져오기 메서드
 		}
 	}
 	return board;
+}
+
+public Upload getUploadFile(String b_idx) { // 게시글에 첨부된 이미지 가져오기
+	Connection conn = null;
+	PreparedStatement pstmt = null;
+	ResultSet rs = null;
+	Upload file = null;
+	
+	try {
+		conn = DBConnection.getConnection();
+		String query = "Select *"
+				+ " From file"
+				+ " Where b_idx = ?";
+		pstmt = conn.prepareStatement(query);
+		pstmt.setString(1, b_idx);
+		rs = pstmt.executeQuery();
+		 
+		while(rs.next()) {
+			file = new Upload();
+			file.setB_idx(rs.getInt("b_idx"));
+			file.setDirectory(rs.getString("file_path"));
+			file.setFileName(rs.getString("file_name"));
+		}
+		
+	} catch (Exception e) {
+		
+	} finally {
+		try {
+			rs.close();
+			pstmt.close();
+			conn.close();				
+		}catch(SQLException e) {
+			e.printStackTrace();
+		}
 	}
+	return file;
+}
 public void updateView(String b_idx) { // 글 클릭 시 조회수 증가 메서드
 	Connection conn = null;
 	PreparedStatement pstmt = null;
@@ -641,32 +678,6 @@ public void deletePost(String b_idx){
 		        	pstmt.setInt(2, pageNum);
 		        }
 			
-						
-			/*String query = "SELECT * FROM board WHERE ";
-			
-			if (search.equals("b_title")) {
-				query += "b_title like ?";
-				}
-			else if (search.equals("b_content")) {
-				query += "b_content like ?";
-				}
-			else if (search.equals("b_title AND b_content")) { //제목 + 내용으로 찾을 경우 
-				query += "b_title like ? OR b_content like ?";
-				}
-			else if (search.equals("b_writer")) {
-				query += "b_writer like ?";
-				} 
-			
-			pstmt = conn.prepareStatement(query);
-			
-			String Search = "%" + content + "%";
-			
-			if (search.equals("b_title AND b_content")) {
-	            pstmt.setString(1, Search);
-	            pstmt.setString(2, Search);
-	        } else {
-	            pstmt.setString(1, Search);
-	        }*/
 			
 			rs = pstmt.executeQuery();
 			
@@ -695,6 +706,33 @@ public void deletePost(String b_idx){
 			}
 		}
 		return serchResult;
+	}
+	public void insertFile(Upload file){
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		
+		try {
+			conn = DBConnection.getConnection();
+			String query = "INSERT INTO file (file_path, file_name, original_file_name, file_type, file_size, b_idx) VALUES (?, ?, ?, ?, ?, ?)";
+			pstmt = conn.prepareStatement(query);
+			pstmt.setString(1, file.getDirectory()); //저장위치
+			pstmt.setString(2, file.getFileName()); //파일이름
+			pstmt.setString(3, file.getOriginalFileName()); //원본이름
+			pstmt.setString(4, file.getFileType()); //파일타입
+			pstmt.setLong(5, file.getFile().length()); //파일크기
+			pstmt.setInt(6, file.getB_idx());
+			pstmt.executeUpdate();
+			
+		} catch (Exception e) {
+			 e.printStackTrace();
+		} finally {
+			try {
+				pstmt.close();
+				conn.close();				
+			}catch(SQLException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 }
 
