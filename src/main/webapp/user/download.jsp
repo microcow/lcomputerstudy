@@ -12,7 +12,8 @@
 	String downloadPath = context.getRealPath("upload");
 	String filePath = downloadPath + "\\" + fileName;
 	File file = new File(filePath);
-	////이쪽 부분이 좀 잘못된듯 실제 파일이 저장되어있는 경로가 이상함
+	/// 이미지를 개발경로로 업로드하면 배포경로로 저장도 잘 되는데 왜 이미지를 가져오지 못하는건지 확인필요함
+	/// 요구간에서 수정이 필요한듯 (controller에서도 주소 바인딩 수정 필요한거같기도)
 	
 	// MIMETYPE 설정
 	String mimeType = getServletContext().getMimeType(filePath);

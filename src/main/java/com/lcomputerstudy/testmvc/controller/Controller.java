@@ -38,7 +38,13 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		doPost(request, response);
-		
+		/* jsp에서 java로 정보를 보낼 때 <form action="creat-reply.do" method="post">(post방식)
+		 *  혹은 create.list.do?search=${search.search}(get방식) 이렇게 post방식 혹은 get방식으로
+		 *  보낼 수 있는데 get방식은 doGet메서드가, post방식은 doPost가 받게된다.
+		 *  단, get방식은 url(주소)에 value값을 적어서 정보를 보내므로 보안에 약한편이다.
+		 */
+		// 그리고 받은 정보는 HttpServletRequest인터페이스의 request인스턴스에 저장되며, 저장된 정보를 다양한 메서드를 활용해서 사용할 수 있다.
+		/// response는 어따쓰지??
 	}
 
 	@Override
@@ -215,13 +221,18 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 				view = "user/create";
 				break;
 				
-			case "/create.process.do": // 최초 작성, 답글 작성 모두 글 작성 시 create.process.do로 오게 되어있음
+			case "/create.process.do": // 최초 작성, 답글 작성 모두 create.process.do로 오게 되어있음
 				BoardService boardService = BoardService.getInstance();
 				
-				/// https://zrr.kr/NtP9 (cos.jar를 이용하여 파일 업로드 기능 구현 참고 블로그)
 				
-				//String directory = "C:/Users/L7A/Desktop/";
-				String directory = "C:\\Users\\chzh6\\OneDrive\\바탕 화면\\";
+				// 첨부파일 저장프로세스
+				/// https://zrr.kr/NtP9 (cos.jar를 이용하여 파일 업로드 기능 구현 참고 블로그)
+				String directory = "C:\\Users\\L7A\\Documents\\work8\\lcomputerstudy\\src\\main\\webapp\\imageTest";
+				/* C:\Users\L7A\Documents\work8\.metadata\.plugins\org.eclipse.wst.server.core\tmp0\wtpwebapps\lcomputerstudy\imageTest
+				 * main\\webapp\\imageTest에 첨부파일을 저장하면 웹서버인 위의 주소에 반영되어 저장된다 (위에가 개발경로 밑에가 배포경로)
+				 */
+				 
+				//String directory = "C:\\Users\\chzh6\\OneDrive\\바탕 화면\\";
 		        int sizeLimit = 100 * 1024 * 1024; // 100MB 제한
 
 		        // MultipartRequest 객체 생성
@@ -237,6 +248,7 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 		        String originalFileName = multi.getOriginalFileName("file");
 		        String fileType = multi.getContentType("file");
 		        File file = multi.getFile("file");
+		        // request.getParameter 대신 multi.~~() 메서드를 사용하는 이유는 아래에 설명
 		     	        
 		        // 파일 정보 저장
 		        Upload upload = new Upload();
@@ -260,7 +272,7 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 		        
 		       
 				
-				
+				// 게시글 저장프로세스
 				Board board = new Board();
 				board.setTitle(multi.getParameter("title"));
 				board.setContent(multi.getParameter("content"));

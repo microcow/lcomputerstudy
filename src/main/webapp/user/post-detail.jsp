@@ -7,7 +7,7 @@
 <!DOCTYPE html>
 <%	request.setCharacterEncoding("utf-8"); // 인코딩 타입 설정 %>
 <%  
-	int b_idx = (int) request.getAttribute("b_idx"); 
+	int b_idx = (int) request.getAttribute("b_idx"); // b_idx는 안쓰임
 	String fileName = (String) request.getAttribute("fileName");
 	String originalFileName = (String) request.getAttribute("originalFileName");
 	/* ★ controller에서 request.setAttribute로 보냈으니 request.getAttribute로 받아야함
