@@ -220,7 +220,8 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 				
 				/// https://zrr.kr/NtP9 (cos.jar를 이용하여 파일 업로드 기능 구현 참고 블로그)
 				
-				String directory = "C:/Users/L7A/Desktop/";
+				//String directory = "C:/Users/L7A/Desktop/";
+				String directory = "C:\\Users\\chzh6\\OneDrive\\바탕 화면\\";
 		        int sizeLimit = 100 * 1024 * 1024; // 100MB 제한
 
 		        // MultipartRequest 객체 생성
@@ -236,7 +237,7 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 		        String originalFileName = multi.getOriginalFileName("file");
 		        String fileType = multi.getContentType("file");
 		        File file = multi.getFile("file");
-		        
+		     	        
 		        // 파일 정보 저장
 		        Upload upload = new Upload();
 		        upload.setDirectory(directory + fileName);
@@ -349,10 +350,13 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 				request.setAttribute("replyList", replyList1);
 				// getPost메소드를 통해 board2에 세터로 셋팅된 값만 jsp에 전달됨 (즉, 셋팅된 값만 post-detail jsp에서 사용 가능)
 				
+				if(boardService.getUploadFile(request.getParameter("b_idx")) != null) {
 				upload = boardService.getUploadFile(request.getParameter("b_idx")); // 게시글에 첨부된 이미지 가져오기
-				request.setAttribute("upload", upload);
-				//// 지금 이미지 업로드 후 db에 저장도 잘되고 jsp에서 이미지 주소도 불러와지는데 이미지 출력이 되지 않고 있음.
-				//// 첨부파일이 경로(내컴퓨터 로컬주소)로 저장되고 있는데 이걸 서버로 저장하고 서버에서 불러와야지 이미지를 출력할 수 있을 걱 같음 
+				request.setAttribute("b_idx", upload.getB_idx());
+				request.setAttribute("fileName", upload.getFileName());
+				request.setAttribute("originalFileName", upload.getOriginalFileName());
+				}
+				
 				//// https://blog.naver.com/heartflow89/221009083830 참고블로그
 				
 				view = "user/post-detail";

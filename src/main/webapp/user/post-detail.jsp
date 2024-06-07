@@ -5,7 +5,14 @@
 <!-- foreach를 사용하려면 이처럼 태그 라이브러리를 선언해야함 -->
 
 <!DOCTYPE html>
-
+<%	request.setCharacterEncoding("utf-8"); // 인코딩 타입 설정 %>
+<%  
+	int b_idx = (int) request.getAttribute("b_idx"); 
+	String fileName = (String) request.getAttribute("fileName");
+	String originalFileName = (String) request.getAttribute("originalFileName");
+	/* ★ controller에서 request.setAttribute로 보냈으니 request.getAttribute로 받아야함
+	그리고 Object타입으로 가져오므로 다운캐스팅 */
+%>
 <html>
 <head>
 <meta charset="UTF-8">
@@ -35,7 +42,7 @@
     }
 </style>
 <body>
-<form action="post-delete.do" method="post">
+
 	<table>
 		<tr>
 			<th>작성자</th>
@@ -47,13 +54,12 @@
 			<td>${board2.title}</td>
 			<td>${board2.content}</td>
 		</tr>
-	</table>
+	</table>	
 	
-	
-	<img src="${upload.directory }" alt="Uploaded Image"> <p>
-	
-	
+파일1 : <a href="user/download.jsp?fileName=<%=fileName%>"><%=originalFileName %></a><br>
 
+	
+<form action="post-delete.do" method="post">
 	<input type="hidden" name="b_idx" value="${board2.b_idx}">
 	<input type="hidden" name="u_idx" value="${board2.u_idx}">
 	<input type="submit" value="삭제하기">

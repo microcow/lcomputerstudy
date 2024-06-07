@@ -326,6 +326,7 @@ public Upload getUploadFile(String b_idx) { // 게시글에 첨부된 이미지 
 			file.setB_idx(rs.getInt("b_idx"));
 			file.setDirectory(rs.getString("file_path"));
 			file.setFileName(rs.getString("file_name"));
+			file.setOriginalFileName(rs.getString("original_file_name"));
 		}
 		
 	} catch (Exception e) {
