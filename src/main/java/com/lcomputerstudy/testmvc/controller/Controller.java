@@ -493,7 +493,7 @@ public class Controller extends HttpServlet { // HttpServlet를 꼭 extends해�
 				 */
 				view = "/creat-reply-process.do?b_idx=" + p_postB_idx + "&p_post=" + prt;
 				//// redirection을 하는게 아니라 db에 저장하고 jsp로 넘겨준다음 ajax에서 success시 jsp로딩되게
-				/// 아마 ajax기능하면서 해당 case를 호출 안하고있음
+				/// ajax기능하면서 해당 case 사용안하고있음
 				break;
 				
 			case "/creat-reply-process.do": //댓글기능
