@@ -7,14 +7,14 @@ public class DBConnection {
 	public static Connection getConnection() throws SQLException, ClassNotFoundException{
 		Connection conn = null;
 		
-		
+		// 데이터베이스 연결 설정
 		//로컬호스트(localhost)란 현재 사용 중인 컴퓨터를 가리키는 특수한 호스트 이름
 		String url = "jdbc:mysql://localhost:3306/dbtest"; // 학원 db주소
 		//String url = "jdbc:mysql://localhost:3306/sangwoo"; //집 db주소	
 		String id = "root";
 		String pw = "1234";
 		
-		Class.forName("org.mariadb.jdbc.Driver");
+		Class.forName("org.mariadb.jdbc.Driver"); // JDBC 드라이버 로드
 		conn = DriverManager.getConnection(url, id, pw);
 		
 		return conn;

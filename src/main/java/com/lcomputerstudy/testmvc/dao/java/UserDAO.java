@@ -28,18 +28,23 @@ public class UserDAO {
 	
 	public ArrayList<User> getUsers(){
 		Connection conn = null;
-		PreparedStatement pstmt = null; //PreparedStatement 인터페이스가 무엇인지
-		ResultSet rs = null; // ResultSet 인터페이스가 무엇인지
+		PreparedStatement pstmt = null; // 준비된 쿼리를 실행할 PreparedStatement 객체
+		ResultSet rs = null;
 		ArrayList<User> list = null;
 		
 		try {
 			conn = DBConnection.getConnection();
-			String query = "Select *"
+			// 쿼리 준비
+			String query = "Select *" 
 					+ " From user";
-			pstmt = conn.prepareStatement(query); // SQL 쿼리를 데이터베이스에 보내기 위한 PreparedStatement 객체를 생성
+			pstmt = conn.prepareStatement(query); // SQL 쿼리를 데이터베이스에 보내기 위한 PreparedStatement 객체 생성
 			rs = pstmt.executeQuery(); 
 			// ★ pstmt.executeQuery(); : 쿼리를 실행하는 코드
 			// ★ rs = pstmt.executeQuery(); : 실행된 코드의 결과 데이터가 저장된다
+			
+			/* ★★ pstmt.executeUpdate() : 쿼리 실행 시 retrun값이 없을 때 사용 (UPDATE, DELETE 등);
+			   ★★ pstmt.executeQuery() : 쿼리 실행 시 retrun값이 있을 때 사용 (SELECT 등)*/
+			
 			list = new ArrayList<User>();
 			
 			while(rs.next()) {
@@ -50,7 +55,7 @@ public class UserDAO {
        	       	user.setU_tel(rs.getString("u_tel"));
        	       	user.setU_age(rs.getString("u_age"));
        	       	list.add(user);
-       	  // ★ rs.getInt 혹은 rs.getString은 파라미터에 적은 섹션의 값을 return한다.
+       	  // ★★ rs.getInt 혹은 rs.getString은 파라미터에 적은 섹션의 값을 return한다.
 			}
 		} catch (Exception e) {
 			
@@ -74,7 +79,7 @@ public class UserDAO {
 			String sql = "insert into user(u_id,u_pw,u_name,u_tel,u_age) values(?,?,?,?,?)";
 			// 쿼리에서 insert문 작성 시 이렇게 (update, delete문과는 다름)
 			pstmt = conn.prepareStatement(sql);
-			pstmt.setString(1, user.getU_id());
+			pstmt.setString(1, user.getU_id()); // setString이나 setInt 메서드는 SQL 쿼리 내에서 ?로 표시된 위치에 값을 동적으로 설정
 			pstmt.setString(2, user.getU_pw());
 			pstmt.setString(3, user.getU_name());
 			pstmt.setString(4, user.getU_tel());
