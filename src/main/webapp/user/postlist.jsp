@@ -52,7 +52,7 @@
 <body>
 <h1>글 목록</h1>
 <form action="create.list.do" method="get">
-  <label for="lang">검색</label>
+  <label for="lang">검색</label> <!-- label 키워드 -->
   <select name="search" id="lang">
   	<option value="select">search</option>
     <option value="b_title">제목</option>
