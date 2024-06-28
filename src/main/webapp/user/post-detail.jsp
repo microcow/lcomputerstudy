@@ -81,7 +81,7 @@
 <form action="creat-reply.do" method="post">
 	<input type="hidden" name="b_idx" value="${board2.b_idx}"> <!-- 댓글다는 글 b_idx값 전달 -->
 	<p><button type="button" class="btnComment2">댓글달기</button></p>
-	<!-- input방식은 폼을 서버로 전송하고자 하기 때문에 아래 skript의 e.preventDefault();가 작동하지 않을 수 이음 따라서 button 사용 -->
+	<!-- input방식은 폼을 서버로 전송하고자 하기 때문에 아래 skript의 e.preventDefault();가 작동하지 않을 수 있음 따라서 button 사용 -->
 </form>
 <table>
 	<tr style="display: none;">
