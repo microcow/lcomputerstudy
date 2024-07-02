@@ -113,7 +113,7 @@
          <td>${reply.date}</td>
          <td>
 	         <form action="creat-reply.do" method="post">
-				<input type="hidden" name="b_idx" value="${board2.b_idx}">
+				<input type="hidden" name="b_idx" value="${board2.b_idx}"> <!-- reply.b_idx하는게 좀 더 깔끔했을듯 -->
 				<input type="hidden" name="r_idx" value="${reply.r_idx}">
 				<p><button type="button" class="btnComment">댓글달기</button></p>
 				<p><button type="button" class="btnChange">수정하기</button></p>
